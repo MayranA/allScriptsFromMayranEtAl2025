@@ -42,11 +42,11 @@ For each time point of the time-course, consensus peaks were called using [this 
 
 #### Merge and quantification
 
-The consensus peaks were concatenated and merged to generate a single list of non-overlapping intervals. This list has been used to quantify with multiBAMsummary from deeptools. The Galaxy workflow is available [here](./ATAC_correlation_Time_Course.ga). The corresponding command lines are [here](./ATAC_correlation_CL.sh). The final output table is [here](./counts_on_peaks.txt.gz).
+The consensus peaks were concatenated and merged to generate a single list of non-overlapping intervals. This list has been used to quantify with multiBAMsummary from deeptools. The Galaxy workflow is available [here](./ATAC_correlation_Time_Course.ga). The corresponding command lines are [here](./ATAC_correlation_CL.sh). The final output table is [here](../output.files/ATACseq/counts_on_peaks.txt.gz).
 
 ### Differential accessibility
 
-DESeq2 was used to determine differential accessibility on consecutive timepoints. The R script is [here](./DESeq2_ATAC.R). The outputs are [here](./DESeq2_pairwise/). Among outputs, the list of regions significantly more accessible at 96h compared to 72h sorted by normalized coverage at 96h and the list of regions significantly less accessible at 96h compared to 72h sorted by normalized coverage at 72h.
+DESeq2 was used to determine differential accessibility on consecutive timepoints. The R script is [here](./DESeq2_ATAC.R). The outputs are [here](../output.files/ATACseq/DESeq2_pairwise/). Among outputs, the list of regions significantly more accessible at 96h compared to 72h sorted by normalized coverage at 96h and the list of regions significantly less accessible at 96h compared to 72h sorted by normalized coverage at 72h.
 
 ## Heatmap
 

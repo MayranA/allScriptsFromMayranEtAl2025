@@ -108,7 +108,7 @@ deseqAnaWithCovariates <- function(count.table, factorForAna, covariates,
 }
 
 # Fixed variables:
-path <- "ATACseq/"
+path <- "output.files/ATACseq/"
 tableWithCounts <- file.path(path, "counts_on_peaks.txt.gz")
 pathForDESeq2 <- file.path(path, "DESeq2_pairwise")
 log2FC.threshold <- 1
