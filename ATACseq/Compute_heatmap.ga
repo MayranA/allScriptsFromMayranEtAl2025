@@ -1,0 +1,664 @@
+{
+    "a_galaxy_workflow": "true",
+    "annotation": "",
+    "format-version": "0.1",
+    "name": "compute_heatmap",
+    "steps": {
+        "0": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 0,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "bigwigs to display"
+                }
+            ],
+            "label": "bigwigs to display",
+            "name": "Input dataset collection",
+            "outputs": [],
+            "position": {
+                "bottom": 140.8000030517578,
+                "height": 61.80000305175781,
+                "left": 380,
+                "right": 580,
+                "top": 79,
+                "width": 200,
+                "x": 380,
+                "y": 79
+            },
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": \"\", \"collection_type\": \"list\"}",
+            "tool_version": null,
+            "type": "data_collection_input",
+            "uuid": "537b22fd-c692-4015-87db-84e8283e011d",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "output",
+                    "uuid": "4de138de-7648-451d-86e0-baf9211419db"
+                }
+            ]
+        },
+        "1": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 1,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "decreased_96h.bed"
+                }
+            ],
+            "label": "decreased_96h.bed",
+            "name": "Input dataset",
+            "outputs": [],
+            "position": {
+                "bottom": 254.6999969482422,
+                "height": 82.19999694824219,
+                "left": 543,
+                "right": 743,
+                "top": 172.5,
+                "width": 200,
+                "x": 543,
+                "y": 172.5
+            },
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": \"\"}",
+            "tool_version": null,
+            "type": "data_input",
+            "uuid": "64f910d0-e0d8-4201-b409-fa20b6f4fa81",
+            "workflow_outputs": []
+        },
+        "2": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 2,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "consensus_48h"
+                }
+            ],
+            "label": "consensus_48h",
+            "name": "Input dataset",
+            "outputs": [],
+            "position": {
+                "bottom": 361.8000030517578,
+                "height": 61.80000305175781,
+                "left": 549,
+                "right": 749,
+                "top": 300,
+                "width": 200,
+                "x": 549,
+                "y": 300
+            },
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": \"\"}",
+            "tool_version": null,
+            "type": "data_input",
+            "uuid": "6df61138-8cab-4740-8453-70f9b048d6c1",
+            "workflow_outputs": []
+        },
+        "3": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 3,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "increased_96h.bed"
+                }
+            ],
+            "label": "increased_96h.bed",
+            "name": "Input dataset",
+            "outputs": [],
+            "position": {
+                "bottom": 514.6999969482422,
+                "height": 82.19999694824219,
+                "left": 554,
+                "right": 754,
+                "top": 432.5,
+                "width": 200,
+                "x": 554,
+                "y": 432.5
+            },
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": \"\"}",
+            "tool_version": null,
+            "type": "data_input",
+            "uuid": "f50e4d69-4f92-4ded-ac7d-91df087807dd",
+            "workflow_outputs": []
+        },
+        "4": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 4,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "consensus_120h"
+                }
+            ],
+            "label": "consensus_120h",
+            "name": "Input dataset",
+            "outputs": [],
+            "position": {
+                "bottom": 647.8000030517578,
+                "height": 61.80000305175781,
+                "left": 558,
+                "right": 758,
+                "top": 586,
+                "width": 200,
+                "x": 558,
+                "y": 586
+            },
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": \"\"}",
+            "tool_version": null,
+            "type": "data_input",
+            "uuid": "f6a1ed03-a89a-428f-82e2-8122b14688d3",
+            "workflow_outputs": []
+        },
+        "5": {
+            "annotation": "",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_intersectbed/2.30.0+galaxy1",
+            "errors": null,
+            "id": 5,
+            "input_connections": {
+                "inputA": {
+                    "id": 1,
+                    "output_name": "output"
+                },
+                "reduce_or_iterate|inputB": {
+                    "id": 2,
+                    "output_name": "output"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool bedtools Intersect intervals",
+                    "name": "inputA"
+                },
+                {
+                    "description": "runtime parameter for tool bedtools Intersect intervals",
+                    "name": "reduce_or_iterate"
+                }
+            ],
+            "label": null,
+            "name": "bedtools Intersect intervals",
+            "outputs": [
+                {
+                    "name": "output",
+                    "type": "input"
+                }
+            ],
+            "position": {
+                "bottom": 268.5,
+                "height": 144,
+                "left": 906,
+                "right": 1106,
+                "top": 124.5,
+                "width": 200,
+                "x": 906,
+                "y": 124.5
+            },
+            "post_job_actions": {},
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_intersectbed/2.30.0+galaxy1",
+            "tool_shed_repository": {
+                "changeset_revision": "a1a923cd89e8",
+                "name": "bedtools",
+                "owner": "iuc",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"bed\": \"false\", \"count\": \"false\", \"fraction_cond\": {\"fraction_select\": \"default\", \"__current_case__\": 0}, \"genome_file_opts\": {\"genome_file_opts_selector\": \"loc\", \"__current_case__\": 0, \"genome\": null}, \"header\": \"false\", \"inputA\": {\"__class__\": \"RuntimeValue\"}, \"invert\": \"false\", \"once\": \"true\", \"overlap_mode\": [\"-wa\"], \"reduce_or_iterate\": {\"reduce_or_iterate_selector\": \"iterate\", \"__current_case__\": 0, \"inputB\": {\"__class__\": \"RuntimeValue\"}}, \"sorted\": \"false\", \"split\": \"false\", \"strand\": \"\", \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "2.30.0+galaxy1",
+            "type": "tool",
+            "uuid": "354adb04-ce44-498a-9595-b4ee8fbbe640",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "output",
+                    "uuid": "39a68e88-73ad-49f8-b250-9380e0ea8dc8"
+                }
+            ]
+        },
+        "6": {
+            "annotation": "",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_intersectbed/2.30.0+galaxy1",
+            "errors": null,
+            "id": 6,
+            "input_connections": {
+                "inputA": {
+                    "id": 1,
+                    "output_name": "output"
+                },
+                "reduce_or_iterate|inputB": {
+                    "id": 2,
+                    "output_name": "output"
+                }
+            },
+            "inputs": [],
+            "label": null,
+            "name": "bedtools Intersect intervals",
+            "outputs": [
+                {
+                    "name": "output",
+                    "type": "input"
+                }
+            ],
+            "position": {
+                "bottom": 425.5,
+                "height": 144,
+                "left": 908,
+                "right": 1108,
+                "top": 281.5,
+                "width": 200,
+                "x": 908,
+                "y": 281.5
+            },
+            "post_job_actions": {},
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_intersectbed/2.30.0+galaxy1",
+            "tool_shed_repository": {
+                "changeset_revision": "a1a923cd89e8",
+                "name": "bedtools",
+                "owner": "iuc",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"__input_ext\": \"input\", \"bed\": \"false\", \"chromInfo\": \"/data/galaxy/galaxy/var/tool-data/mm10_UCSC/len/mm10_UCSC.len\", \"count\": \"false\", \"fraction_cond\": {\"fraction_select\": \"default\", \"__current_case__\": 0}, \"genome_file_opts\": {\"genome_file_opts_selector\": \"loc\", \"__current_case__\": 0, \"genome\": null}, \"header\": \"false\", \"inputA\": {\"__class__\": \"ConnectedValue\"}, \"invert\": \"true\", \"once\": \"false\", \"overlap_mode\": [\"-wa\"], \"reduce_or_iterate\": {\"reduce_or_iterate_selector\": \"iterate\", \"__current_case__\": 0, \"inputB\": {\"__class__\": \"ConnectedValue\"}}, \"sorted\": \"false\", \"split\": \"false\", \"strand\": \"\", \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "2.30.0+galaxy1",
+            "type": "tool",
+            "uuid": "f4fd178d-c9ae-456e-b3b5-ee4155e45037",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "output",
+                    "uuid": "beb8e137-0258-4d87-a07b-12cb180aea84"
+                }
+            ]
+        },
+        "7": {
+            "annotation": "",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_intersectbed/2.30.0+galaxy1",
+            "errors": null,
+            "id": 7,
+            "input_connections": {
+                "inputA": {
+                    "id": 3,
+                    "output_name": "output"
+                },
+                "reduce_or_iterate|inputB": {
+                    "id": 4,
+                    "output_name": "output"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool bedtools Intersect intervals",
+                    "name": "inputA"
+                },
+                {
+                    "description": "runtime parameter for tool bedtools Intersect intervals",
+                    "name": "reduce_or_iterate"
+                }
+            ],
+            "label": null,
+            "name": "bedtools Intersect intervals",
+            "outputs": [
+                {
+                    "name": "output",
+                    "type": "input"
+                }
+            ],
+            "position": {
+                "bottom": 583.5,
+                "height": 144,
+                "left": 907,
+                "right": 1107,
+                "top": 439.5,
+                "width": 200,
+                "x": 907,
+                "y": 439.5
+            },
+            "post_job_actions": {},
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_intersectbed/2.30.0+galaxy1",
+            "tool_shed_repository": {
+                "changeset_revision": "a1a923cd89e8",
+                "name": "bedtools",
+                "owner": "iuc",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"bed\": \"false\", \"count\": \"false\", \"fraction_cond\": {\"fraction_select\": \"default\", \"__current_case__\": 0}, \"genome_file_opts\": {\"genome_file_opts_selector\": \"loc\", \"__current_case__\": 0, \"genome\": null}, \"header\": \"false\", \"inputA\": {\"__class__\": \"RuntimeValue\"}, \"invert\": \"false\", \"once\": \"true\", \"overlap_mode\": [\"-wa\"], \"reduce_or_iterate\": {\"reduce_or_iterate_selector\": \"iterate\", \"__current_case__\": 0, \"inputB\": {\"__class__\": \"RuntimeValue\"}}, \"sorted\": \"false\", \"split\": \"false\", \"strand\": \"\", \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "2.30.0+galaxy1",
+            "type": "tool",
+            "uuid": "f74ed0fd-9c07-4017-86a5-9a43ea843caf",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "output",
+                    "uuid": "cab0a956-e45f-4819-9f0d-a1315e0e274b"
+                }
+            ]
+        },
+        "8": {
+            "annotation": "",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_intersectbed/2.30.0+galaxy1",
+            "errors": null,
+            "id": 8,
+            "input_connections": {
+                "inputA": {
+                    "id": 3,
+                    "output_name": "output"
+                },
+                "reduce_or_iterate|inputB": {
+                    "id": 4,
+                    "output_name": "output"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool bedtools Intersect intervals",
+                    "name": "inputA"
+                },
+                {
+                    "description": "runtime parameter for tool bedtools Intersect intervals",
+                    "name": "reduce_or_iterate"
+                }
+            ],
+            "label": null,
+            "name": "bedtools Intersect intervals",
+            "outputs": [
+                {
+                    "name": "output",
+                    "type": "input"
+                }
+            ],
+            "position": {
+                "bottom": 735.5,
+                "height": 144,
+                "left": 908,
+                "right": 1108,
+                "top": 591.5,
+                "width": 200,
+                "x": 908,
+                "y": 591.5
+            },
+            "post_job_actions": {},
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_intersectbed/2.30.0+galaxy1",
+            "tool_shed_repository": {
+                "changeset_revision": "a1a923cd89e8",
+                "name": "bedtools",
+                "owner": "iuc",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"bed\": \"false\", \"count\": \"false\", \"fraction_cond\": {\"fraction_select\": \"default\", \"__current_case__\": 0}, \"genome_file_opts\": {\"genome_file_opts_selector\": \"loc\", \"__current_case__\": 0, \"genome\": null}, \"header\": \"false\", \"inputA\": {\"__class__\": \"RuntimeValue\"}, \"invert\": \"true\", \"once\": \"false\", \"overlap_mode\": [\"-wa\"], \"reduce_or_iterate\": {\"reduce_or_iterate_selector\": \"iterate\", \"__current_case__\": 0, \"inputB\": {\"__class__\": \"RuntimeValue\"}}, \"sorted\": \"false\", \"split\": \"false\", \"strand\": \"\", \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "2.30.0+galaxy1",
+            "type": "tool",
+            "uuid": "e9689bf1-4ec4-4b9e-b91a-78684f8be94d",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "output",
+                    "uuid": "a6b5e668-30c0-4798-bd14-5f135df941bc"
+                }
+            ]
+        },
+        "9": {
+            "annotation": "",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_compute_matrix/deeptools_compute_matrix/3.5.2+galaxy0",
+            "errors": null,
+            "id": 9,
+            "input_connections": {
+                "multibigwig_conditional|bigwigfiles": {
+                    "id": 0,
+                    "output_name": "output"
+                },
+                "regionsFiles_0|regionsFile": {
+                    "id": 5,
+                    "output_name": "output"
+                },
+                "regionsFiles_1|regionsFile": {
+                    "id": 6,
+                    "output_name": "output"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool computeMatrix",
+                    "name": "advancedOpt"
+                },
+                {
+                    "description": "runtime parameter for tool computeMatrix",
+                    "name": "multibigwig_conditional"
+                }
+            ],
+            "label": null,
+            "name": "computeMatrix",
+            "outputs": [
+                {
+                    "name": "outFileName",
+                    "type": "deeptools_compute_matrix_archive"
+                }
+            ],
+            "position": {
+                "bottom": 432.29998779296875,
+                "height": 306.79998779296875,
+                "left": 1190,
+                "right": 1390,
+                "top": 125.5,
+                "width": 200,
+                "x": 1190,
+                "y": 125.5
+            },
+            "post_job_actions": {},
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_compute_matrix/deeptools_compute_matrix/3.5.2+galaxy0",
+            "tool_shed_repository": {
+                "changeset_revision": "d9a637e83828",
+                "name": "deeptools_compute_matrix",
+                "owner": "bgruening",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"advancedOpt\": {\"showAdvancedOpt\": \"yes\", \"__current_case__\": 1, \"binSize\": \"50\", \"sortRegions\": \"keep\", \"sortUsing\": \"mean\", \"averageTypeBins\": \"mean\", \"missingDataAsZero\": \"true\", \"skipZeros\": \"false\", \"minThreshold\": null, \"maxThreshold\": null, \"scale\": null, \"metagene\": \"false\", \"transcriptID\": \"transcript\", \"exonID\": \"exon\", \"transcript_id_designator\": \"transcript_id\", \"blackListFileName\": {\"__class__\": \"RuntimeValue\"}}, \"custom_sample_labels_conditional\": {\"custom_labels_select\": \"No\", \"__current_case__\": 0}, \"mode\": {\"mode_select\": \"reference-point\", \"__current_case__\": 1, \"referencePoint\": \"center\", \"nanAfterEnd\": \"false\", \"beforeRegionStartLength\": \"2500\", \"afterRegionStartLength\": \"2500\"}, \"multibigwig_conditional\": {\"orderMatters\": \"No\", \"__current_case__\": 0, \"bigwigfiles\": {\"__class__\": \"RuntimeValue\"}}, \"output\": {\"showOutputSettings\": \"no\", \"__current_case__\": 0}, \"regionsFiles\": [{\"__index__\": 0, \"regionsFile\": {\"__class__\": \"RuntimeValue\"}}, {\"__index__\": 1, \"regionsFile\": {\"__class__\": \"RuntimeValue\"}}], \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "3.5.2+galaxy0",
+            "type": "tool",
+            "uuid": "89799130-c618-4a92-aa07-1ba3ba047f96",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "outFileName",
+                    "uuid": "afaf1104-cc74-4894-8374-971e13652184"
+                }
+            ]
+        },
+        "10": {
+            "annotation": "",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_compute_matrix/deeptools_compute_matrix/3.5.2+galaxy0",
+            "errors": null,
+            "id": 10,
+            "input_connections": {
+                "multibigwig_conditional|bigwigfiles": {
+                    "id": 0,
+                    "output_name": "output"
+                },
+                "regionsFiles_0|regionsFile": {
+                    "id": 7,
+                    "output_name": "output"
+                },
+                "regionsFiles_1|regionsFile": {
+                    "id": 8,
+                    "output_name": "output"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool computeMatrix",
+                    "name": "advancedOpt"
+                },
+                {
+                    "description": "runtime parameter for tool computeMatrix",
+                    "name": "multibigwig_conditional"
+                }
+            ],
+            "label": null,
+            "name": "computeMatrix",
+            "outputs": [
+                {
+                    "name": "outFileName",
+                    "type": "deeptools_compute_matrix_archive"
+                }
+            ],
+            "position": {
+                "bottom": 862.2999877929688,
+                "height": 306.79998779296875,
+                "left": 1202,
+                "right": 1402,
+                "top": 555.5,
+                "width": 200,
+                "x": 1202,
+                "y": 555.5
+            },
+            "post_job_actions": {},
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_compute_matrix/deeptools_compute_matrix/3.5.2+galaxy0",
+            "tool_shed_repository": {
+                "changeset_revision": "d9a637e83828",
+                "name": "deeptools_compute_matrix",
+                "owner": "bgruening",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"advancedOpt\": {\"showAdvancedOpt\": \"yes\", \"__current_case__\": 1, \"binSize\": \"50\", \"sortRegions\": \"keep\", \"sortUsing\": \"mean\", \"averageTypeBins\": \"mean\", \"missingDataAsZero\": \"true\", \"skipZeros\": \"false\", \"minThreshold\": null, \"maxThreshold\": null, \"scale\": null, \"metagene\": \"false\", \"transcriptID\": \"transcript\", \"exonID\": \"exon\", \"transcript_id_designator\": \"transcript_id\", \"blackListFileName\": {\"__class__\": \"RuntimeValue\"}}, \"custom_sample_labels_conditional\": {\"custom_labels_select\": \"No\", \"__current_case__\": 0}, \"mode\": {\"mode_select\": \"reference-point\", \"__current_case__\": 1, \"referencePoint\": \"center\", \"nanAfterEnd\": \"false\", \"beforeRegionStartLength\": \"2500\", \"afterRegionStartLength\": \"2500\"}, \"multibigwig_conditional\": {\"orderMatters\": \"No\", \"__current_case__\": 0, \"bigwigfiles\": {\"__class__\": \"RuntimeValue\"}}, \"output\": {\"showOutputSettings\": \"no\", \"__current_case__\": 0}, \"regionsFiles\": [{\"__index__\": 0, \"regionsFile\": {\"__class__\": \"RuntimeValue\"}}, {\"__index__\": 1, \"regionsFile\": {\"__class__\": \"RuntimeValue\"}}], \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "3.5.2+galaxy0",
+            "type": "tool",
+            "uuid": "3e5e563f-d69e-482d-a22b-4db6e8d2c1c4",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "outFileName",
+                    "uuid": "995d4589-0852-40a2-a553-d38bea48b6c3"
+                }
+            ]
+        },
+        "11": {
+            "annotation": "",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_plot_heatmap/deeptools_plot_heatmap/3.5.2+galaxy0",
+            "errors": null,
+            "id": 11,
+            "input_connections": {
+                "matrixFile": {
+                    "id": 9,
+                    "output_name": "outFileName"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool plotHeatmap",
+                    "name": "matrixFile"
+                }
+            ],
+            "label": null,
+            "name": "plotHeatmap",
+            "outputs": [
+                {
+                    "name": "outFileName",
+                    "type": "png"
+                }
+            ],
+            "position": {
+                "bottom": 523.8999938964844,
+                "height": 154.39999389648438,
+                "left": 1496,
+                "right": 1696,
+                "top": 369.5,
+                "width": 200,
+                "x": 1496,
+                "y": 369.5
+            },
+            "post_job_actions": {},
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_plot_heatmap/deeptools_plot_heatmap/3.5.2+galaxy0",
+            "tool_shed_repository": {
+                "changeset_revision": "25d830337d31",
+                "name": "deeptools_plot_heatmap",
+                "owner": "bgruening",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"advancedOpt\": {\"showAdvancedOpt\": \"yes\", \"__current_case__\": 1, \"sortRegions\": \"no\", \"sortUsing\": \"mean\", \"sortUsingSamples\": \"2\", \"linesAtTickMarks\": \"false\", \"averageTypeSummaryPlot\": \"mean\", \"plotType\": \"lines\", \"missingDataColor\": \"black\", \"colorMapRepeat\": [{\"__index__\": 0, \"colorMap\": \"Greys\"}], \"alpha\": \"1.0\", \"colorList\": \"\", \"zMin\": \"\", \"zMax\": \"\", \"yMin\": null, \"yMax\": null, \"xAxisLabel\": \"distance from peak center\", \"yAxisLabel\": \"genes\", \"heatmapWidth\": \"7.5\", \"heatmapHeight\": \"25.0\", \"whatToShow\": \"heatmap and colorbar\", \"startLabel\": \"TSS\", \"endLabel\": \"TES\", \"referencePointLabel\": \"peak center\", \"samplesLabel\": \"\", \"regionsLabel\": \"\", \"plotTitle\": \"\", \"legendLocation\": \"best\", \"labelRotation\": \"0\", \"perGroup\": \"false\", \"used_multiple_regions\": {\"used_multiple_regions_options\": \"yes\", \"__current_case__\": 1}, \"clusterUsingSamples\": \"\"}, \"matrixFile\": {\"__class__\": \"RuntimeValue\"}, \"output\": {\"showOutputSettings\": \"yes\", \"__current_case__\": 1, \"outFileFormat\": \"eps\", \"dpi\": \"200\", \"saveMatrix\": \"false\", \"saveSortedRegions\": \"false\"}, \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "3.5.2+galaxy0",
+            "type": "tool",
+            "uuid": "1c74ebf7-6044-473f-989e-d14b2910e7a3",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "outFileName",
+                    "uuid": "17fdfd12-2a43-4f6b-b62e-9f02e75b41f6"
+                }
+            ]
+        },
+        "12": {
+            "annotation": "",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_plot_heatmap/deeptools_plot_heatmap/3.5.2+galaxy0",
+            "errors": null,
+            "id": 12,
+            "input_connections": {
+                "matrixFile": {
+                    "id": 10,
+                    "output_name": "outFileName"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool plotHeatmap",
+                    "name": "matrixFile"
+                }
+            ],
+            "label": null,
+            "name": "plotHeatmap",
+            "outputs": [
+                {
+                    "name": "outFileName",
+                    "type": "png"
+                }
+            ],
+            "position": {
+                "bottom": 948.8999938964844,
+                "height": 154.39999389648438,
+                "left": 1514,
+                "right": 1714,
+                "top": 794.5,
+                "width": 200,
+                "x": 1514,
+                "y": 794.5
+            },
+            "post_job_actions": {},
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_plot_heatmap/deeptools_plot_heatmap/3.5.2+galaxy0",
+            "tool_shed_repository": {
+                "changeset_revision": "25d830337d31",
+                "name": "deeptools_plot_heatmap",
+                "owner": "bgruening",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"advancedOpt\": {\"showAdvancedOpt\": \"yes\", \"__current_case__\": 1, \"sortRegions\": \"no\", \"sortUsing\": \"mean\", \"sortUsingSamples\": \"2\", \"linesAtTickMarks\": \"false\", \"averageTypeSummaryPlot\": \"mean\", \"plotType\": \"lines\", \"missingDataColor\": \"black\", \"colorMapRepeat\": [{\"__index__\": 0, \"colorMap\": \"Greys\"}], \"alpha\": \"1.0\", \"colorList\": \"\", \"zMin\": \"\", \"zMax\": \"\", \"yMin\": null, \"yMax\": null, \"xAxisLabel\": \"distance from peak center\", \"yAxisLabel\": \"genes\", \"heatmapWidth\": \"7.5\", \"heatmapHeight\": \"25.0\", \"whatToShow\": \"heatmap and colorbar\", \"startLabel\": \"TSS\", \"endLabel\": \"TES\", \"referencePointLabel\": \"peak center\", \"samplesLabel\": \"\", \"regionsLabel\": \"\", \"plotTitle\": \"\", \"legendLocation\": \"best\", \"labelRotation\": \"0\", \"perGroup\": \"false\", \"used_multiple_regions\": {\"used_multiple_regions_options\": \"yes\", \"__current_case__\": 1}, \"clusterUsingSamples\": \"\"}, \"matrixFile\": {\"__class__\": \"RuntimeValue\"}, \"output\": {\"showOutputSettings\": \"yes\", \"__current_case__\": 1, \"outFileFormat\": \"eps\", \"dpi\": \"178\", \"saveMatrix\": \"false\", \"saveSortedRegions\": \"false\"}, \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "3.5.2+galaxy0",
+            "type": "tool",
+            "uuid": "c8a1f366-74ff-453a-86be-0853bf3fb928",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "outFileName",
+                    "uuid": "3a42caee-838e-4b68-b555-566169d85cee"
+                }
+            ]
+        }
+    },
+    "tags": [],
+    "uuid": "a2f2a779-b489-40a9-ae48-8ad5c855f669",
+    "version": 2
+}

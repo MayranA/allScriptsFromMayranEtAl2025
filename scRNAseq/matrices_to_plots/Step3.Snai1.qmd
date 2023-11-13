@@ -1,0 +1,224 @@
+---
+title: "Comparative scRNAseq of WT and Snai1-/- gastruloids"
+format: html
+editor: visual
+author : Alexandre Mayran
+---
+
+```{r, setup, include=FALSE}
+# choose working directory
+wd <- "/data/home/ldelisle/tempAllScriptsFromMayranEtAl2023"
+
+knitr::opts_knit$set(root.dir = wd)
+```
+
+# Basic analysis and vizualisation of WT Gastruloids
+
+Here, we load all the required packages / functions and params
+
+```{r}
+#| label: Loading packages and variable
+scRNAseqFunctions.file.path <- "scRNAseq/matrices_to_plots/scRNAseqFunctions.R"
+scRNAseqParam.file.path <- "scRNAseq/matrices_to_plots/scRNAseqSnai1params.R"
+source(scRNAseqFunctions.file.path)
+source(scRNAseqParam.file.path)
+```
+
+## We define the sample to analyse
+
+```{r}
+# Here you need to define the name of the folder where the RDS is.
+# The RDS folder needs to be placed right outside of the working directory
+RDSfolder <- "../mountDuboule/Alex/R/RDS_new"
+output.directory <- "output.files/scRNAseq/matrices_to_plots/Snai1/"
+nameRDS <- "combined.Snai1_5c4e8bb1.RDS"
+if(file.exists(file.path(RDSfolder, "merged", paste0(nameRDS)))){
+  print(paste0(nameRDS," RDS file found"))
+} else{
+  print(paste0(nameRDS," RDS file not found, check the location"))
+}
+```
+
+## Now we load seurat object and define object specific variables: colors for
+
+```{r}
+params <- list(current.fig = paste0(output.directory, "Fig.5/"), nameRDS = nameRDS, Col.featurePlot = Col.featurePlot)
+# here put name of RDS as given in step 2
+
+if(file.exists(file.path(RDSfolder, "analyzed", paste0("analyzed.",nameRDS)))){
+  print("Analyzed RDS already exist will just run the visualizations")
+  combined.seurat <- readRDS(file.path(RDSfolder, "analyzed", paste0("analyzed.",nameRDS)))
+} else{
+  print("Analyzed RDS does not exist will perform analysis and visualization")
+  
+  combined.seurat <- readRDS(file.path(RDSfolder, "merged", paste0(nameRDS)))
+}
+```
+
+# Basic analysis and vizualisation of SnaiKO
+
+## Here we run UMAP and clustering
+
+```{r}
+#| label: UMAP and clustering
+ElbowPlot(combined.seurat, ndims = 50)
+if(!file.exists(file.path(RDSfolder, "analyzed", paste0("analyzed.",nameRDS)))){
+  
+  combined.seurat <- RunUMAP(combined.seurat, reduction = "pca",
+                             n.components = 2L,  
+                             dims = 1:30, seed.use = 2)
+  combined.seurat <- FindNeighbors(combined.seurat, reduction = "pca",
+                                   dims = 1:30)
+  combined.seurat <- FindClusters(combined.seurat, resolution = 0.6)
+} else{
+  print("Analyzed RDS already exist will just run the visualizations")
+}
+
+
+```
+
+## Here, we identify the clusters, change the names and put the correct colors
+
+To use this code on another dataset, please update new.cluster.name accordingly and assign them to correct identities in list.Fate.level
+
+```{r}
+Idents(combined.seurat) <- "seurat_clusters"
+new.cluster.name <- c("Som. Mes.","Late NMP", "Neural Tube 1", "Prim. Streak", "Early NMP",
+                      "Caudal Epiblast","Mixed Mesoderm", "Post. PSM", "Epiblast",
+                      "Neuron Progen.", "Ant. PSM","Sclerotome", "Late Endoderm",
+                      "Neural Tube 2", "Pluripotent", "Neuron Precursor",
+                      "Ant. Prim. Streak", "Early Endoderm", "Surface Ectoderm",
+                      "Endothelial")
+names(new.cluster.name) <- levels(combined.seurat)
+combined.seurat <- RenameIdents(combined.seurat, new.cluster.name)
+combined.seurat[["Fate"]] <- Idents(combined.seurat)
+if (any(! unique(as.character(combined.seurat$Fate)) %in% unlist(list.Fate.level))) {
+  stop("The following Fate are not in list.Fate.level: ", paste(unique(as.character(combined.seurat$Fate))[! unique(as.character(combined.seurat$Fate)) %in% unlist(list.Fate.level)], collapse = ", "), "\n")
+} else {
+  cat("all good on nomenclature")
+  combined.seurat[["FateColor"]] <- my.fate.colors[as.character(combined.seurat$Fate)]
+  combined.seurat$Fate <- factor(combined.seurat$Fate,levels =
+                                   names(my.fate.colors))
+}
+```
+
+## Here, we visualize the data colored by fate and by time
+
+```{r}
+#| label: Fig. 5E-F
+params$current.fig <- SwitchFigure(Fig = 5, Panel = "DimPlot.Genotype.Snai1")
+dir.create(params$current.fig, showWarnings = FALSE, recursive = TRUE)
+g <- DimPlotMayran("combined.seurat", params,
+                   group.by = "Genotype",
+                   cols = alpha(c("black", "red"), 0.3), label = F,
+                   width = 6, height = 6)
+print(g)
+params$current.fig <- SwitchFigure(Fig = 5, Panel = "DimPlot.Fate.Snai1")
+dir.create(params$current.fig, showWarnings = FALSE, recursive = TRUE)
+g <- DimPlotMayran("combined.seurat", params,
+                   group.by = "Fate",
+                   cols = alpha(my.fate.colors, 0.3),
+                   width = 6, height = 6)
+print(g) 
+
+```
+
+## Now we highlight each individual samples
+
+```{r}
+params$current.fig <- SwitchFigure(Fig = 5, Panel = "Highlight.DimPlot.Snai1/")
+for (sample in unique(combined.seurat$Condition[combined.seurat$Genotype == "Snai1.KO"])){
+  current <- rownames(combined.seurat[[]][combined.seurat$Condition == sample,])
+  g <- DimPlot(combined.seurat, cells.highlight = current,
+               sizes.highlight = 0.1 ,
+               pt.size = 0.1, cols.highlight = alpha("#FF0000",0.3)) + NoLegend() + NoAxes() + ggtitle(label = sample)
+  ggsave(filename = paste0(params$current.fig,sample,".red.highlighted.png"), g, width = 4, height = 4)
+  print(g)
+}
+
+for (sample in unique(combined.seurat$Condition[combined.seurat$Genotype == "129sv.WT"])){
+  current <- rownames(combined.seurat[[]][combined.seurat$Condition == sample,])
+  g <- DimPlot(combined.seurat, cells.highlight = current,
+               sizes.highlight = 0.1 ,
+               pt.size = 0.1, cols.highlight = alpha("#000000",0.3)) + NoLegend() + NoAxes() + ggtitle(label = sample)
+  ggsave(filename = paste0(params$current.fig,sample,".black.highlighted.png"), g, width = 4, height = 4)
+  print(g)
+}
+```
+
+Display cell proportion per conditions
+
+```{r}
+#| label: Fig.1c Cluster proportion per time
+params$current.fig <- SwitchFigure(Fig = "S8", Panel = "BarPlot.Snai1")
+Idents(combined.seurat) <- "Fate"
+#Cluster cell proportions
+
+g <- ggplot(subset(combined.seurat[[]], Time %in% c("48h","72h", "96h", "120h", "144h", "168h")),
+            aes(x = Time, fill = Fate)) + 
+  geom_bar(position = "fill" ) +
+  facet_grid(. ~ Time + Genotype, scales = "free") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        # panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank() ) +
+  scale_fill_manual(values = my.fate.colors) +
+  xlab("Stage") +
+  guides(fill=guide_legend(ncol=2))+
+  scale_y_continuous(labels = scales::percent)
+savePngPdf(g, params$current.fig,
+           paste0(nameRDS,".barplot.cellFate.per.time"),
+           width = 6, height = 4)
+print(g)
+
+```
+
+## let's display the expression of genes of interest now
+
+```{r}
+Idents(combined.seurat) <- "Time"
+late.cells <- WhichCells(combined.seurat, idents = c("48h", "144h", "168h"))
+combined.seurat$Genotime <- paste0(combined.seurat$Time, combined.seurat$Genotype)
+combined.seurat$Genotype2 <- combined.seurat$Genotype
+combined.seurat$Genotype2 <- factor(combined.seurat$Genotype, levels = c(levels(combined.seurat$Genotype), "Other"))
+combined.seurat$Genotype2[colnames(combined.seurat) %in% late.cells] <- "Other"
+# DimPlot(combined.seurat, group.by = "Genotype2")
+params$current.fig <- SwitchFigure(Fig = "S8", Panel = "Transitory.featurePlot")
+genelist <- c("T", "Fst", "Sp8")
+for(gene in genelist){
+  g <- featurePlotMayran("combined.seurat", gene, params, split.by = "Genotype2", by.rows = T, width = 6, height = 15)
+  print(g)
+}
+params$current.fig <- SwitchFigure(Fig = "S8", Panel = "PSM.featurePlot")
+genelist <- c("Tbx6", "Msgn1", "Pcdh19")
+for(gene in genelist){
+  g <- featurePlotMayran("combined.seurat", gene, params, split.by = "Genotype2", by.rows = T, width = 6, height = 15)
+  print(g)
+}
+params$current.fig <- SwitchFigure(Fig = "S8", Panel = "Pluripotent.featurePlot")
+genelist <- c("Dppa5a", "Zfp42", "Pou5f1")
+for(gene in genelist){
+  g <- featurePlotMayran("combined.seurat", gene, params, split.by = "Genotype2", by.rows = T, width = 6, height = 15)
+  print(g)
+}
+params$current.fig <- SwitchFigure(Fig = "S8", Panel = "Som.Mes.featurePlot")
+genelist <- c("Pax3", "Tcf15", "Meox2", "Pax1")
+for(gene in genelist){
+  g <- featurePlotMayran("combined.seurat", gene, params, split.by = "Genotype2", by.rows = T, width = 6, height = 15)
+  print(g)
+}
+params$current.fig <- SwitchFigure(Fig = "S8", Panel = "Neuronal.featurePlot")
+genelist <- c("Pax6", "Sox3", "Irx3", "Sox1")
+for(gene in genelist){
+  g <- featurePlotMayran("combined.seurat", gene, params, split.by = "Genotype2", by.rows = T, width = 6, height = 15)
+  print(g)
+}
+
+```
+
+## Finally we save the fully analyzed RDS
+
+```{r}
+saveRDS(combined.seurat, file = file.path(RDSfolder, "analyzed", paste0("analyzed.",nameRDS)))
+
+```

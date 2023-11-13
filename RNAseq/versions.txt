@@ -1,0 +1,14 @@
+R version 4.2.2 (2022-10-31) -- "Innocent and Trusting"
+Copyright (C) 2022 The R Foundation for Statistical Computing
+Platform: x86_64-conda-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under the terms of the
+GNU General Public License versions 2 or 3.
+For more information about these matters see
+https://www.gnu.org/licenses/.
+
+Version of rnaseq_rscripts
+15d83511cc29046ff5d8b0d0c2a3be9372a91d30
+Version of toolBoxForMutantAndWTGenomes
+d9af00a435e2d13fae034de42e9d65a156acc548

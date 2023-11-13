@@ -1,0 +1,174 @@
+---
+title: "Module score"
+author: "Alexandre Mayran"
+format: html
+editor: visual
+---
+
+```{r, setup, include=FALSE}
+# choose working directory
+wd <- "/data/home/ldelisle/tempAllScriptsFromMayranEtAl2023"
+knitr::opts_knit$set(root.dir = wd)
+```
+
+# Get sc object and genes up-regulated and down-regulated genes in Snai1-/-
+
+Here, we load all the required packages
+
+```{r}
+#| label: Loading packages and variable
+scRNAseqFunctions.file.path <- "scRNAseq/matrices_to_plots/scRNAseqFunctions.R"
+scRNAseqParam.file.path <- "scRNAseq/matrices_to_plots/scRNAseqWTparams.R"
+source(scRNAseqFunctions.file.path)
+source(scRNAseqParam.file.path)
+```
+
+## We define the parameters for display
+
+```{r}
+# Here you need to define the name of the folder where the RDS is
+RDSfolder <- "../mountDuboule/Alex/R/RDS_new"
+# This output.directory will be used for plots
+output.directory <- "output.files/combine_scRNAseq_RNAseq/snai1_genes_on_sc/"
+# Here put name of RDS as given in step 2
+nameRDS <- "combined.WT_ad2bdca4.RDS"
+# File with filtered genes
+filtered.table.file <- "output.files/RNAseq/DESeq2_pairwise/filteredSimplified.txt"
+# Initiate the parameters which will be used for the plots
+params <- list(nameRDS = nameRDS, Col.featurePlot = Col.featurePlot)
+# Check the RDS analyzed file exists:
+if(file.exists(file.path(RDSfolder, "analyzed", paste0("analyzed.", nameRDS)))){
+  print(paste0("analyzed.", nameRDS," RDS file found, you can proceed"))
+} else{
+  stop(paste0("analyzed.", nameRDS," RDS file not found, check the location or run Step3"))
+}
+```
+
+## Load Seurat object
+
+```{r}
+combined.seurat <- readRDS(file.path(RDSfolder, "analyzed", paste0("analyzed.", nameRDS)))
+```
+
+## Get DE genes
+
+```{r}
+filteredSimplifiedTable <- read.delim(filtered.table.file, check.names = FALSE)
+```
+
+# Plot a heatmap
+
+## Restrict the gene list
+
+It looks like 0.3 is a good value to threshold so we remove genes lower than this
+
+```{r}
+average.expr <- as.data.frame(AverageExpression(combined.seurat, features = filteredSimplifiedTable$gene, group.by = "Fate")$RNA)
+average.expr$max <- apply(average.expr,1, max)
+genes.to.keep <- rownames(subset(average.expr, subset = max > 0.3))
+filteredSimplifiedTable.subset.byScExpr <- subset(filteredSimplifiedTable, gene %in% genes.to.keep )
+
+# Use only 300 cells to display the heatmap
+combined.seurat.small <- subset(combined.seurat, downsample = 300)
+combined.seurat.for.heatmap <- ScaleData(combined.seurat.small,
+                                         features = filteredSimplifiedTable.subset.byScExpr$gene)
+expr.table <- GetAssayData(combined.seurat.for.heatmap,
+                           assay = "RNA",
+                           slot = "scale.data")[,order(combined.seurat.for.heatmap$Fate)]
+my.breaks <- c(-100, -5, -4, -3, -2, 2, 3, 4, 5, 100)
+filteredSimplifiedTable.subset.byScExpr$`Clone1Cut` <- cut(filteredSimplifiedTable.subset.byScExpr$`Clone1`,
+                                                           breaks = my.breaks)
+filteredSimplifiedTable.subset.byScExpr$`Clone2Cut` <- cut(filteredSimplifiedTable.subset.byScExpr$`Clone2`,
+                                                           breaks = my.breaks)
+
+rownames(filteredSimplifiedTable.subset.byScExpr) <- filteredSimplifiedTable.subset.byScExpr$gene
+my.FC.color <- rev(RColorBrewer::brewer.pal(n = 9, name = "RdBu"))
+names(my.FC.color) <- levels(filteredSimplifiedTable.subset.byScExpr$Clone1Cut)
+```
+
+## Plot Heatmap
+
+```{r}
+params$current.fig <- SwitchFigure(Fig = "S8", Panel = "Pheatmap.genes.from.Bulk.Snai1KO.in.WT.singleCell")
+
+pheatmap::pheatmap(expr.table, color = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 10, name = "RdBu")))(100),
+                   show_colnames = F, cluster_cols = F, show_rownames = F,
+                   # breaks = c(min(-2.01, min(expr.table)),
+                   #            seq(-2, 2, length.out = 98),
+                   #            max(2.01, max(expr.table))),
+                   breaks = seq(-2, 2, length.out = 100),
+                   annotation_col = subset(combined.seurat.for.heatmap[[]], select = c("Fate", "Time")),
+                   annotation_row = filteredSimplifiedTable.subset.byScExpr[, grep("Cut",
+                                                                              colnames(filteredSimplifiedTable.subset.byScExpr))],
+                   annotation_colors = list("Fate" = my.fate.colors,
+                                            "Clone2Cut" = rev(my.FC.color),
+                                            "Clone1Cut" = rev(my.FC.color),
+                                            "Time" = my.time.colors),
+                   annotation_legend = T, clustering_method = "ward.D", cutree_rows = 3,
+                   filename = paste0(params$current.fig,"/",nameRDS,".Heatmap.SnaiKO.subset.diff.exp.per.Fate.pdf"
+
+                   ), width = 8, height = 12
+)
+pheatmap::pheatmap(expr.table, color = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 10, name = "RdBu")))(100),
+                   show_colnames = F, cluster_cols = F, show_rownames = F,
+                   # breaks = c(min(-2.01, min(expr.table)),
+                   #            seq(-2, 2, length.out = 98),
+                   #            max(2.01, max(expr.table))),
+                   breaks = seq(-2, 2, length.out = 100),
+                   annotation_col = subset(combined.seurat.for.heatmap[[]], select = c("Fate", "Time")),
+                   annotation_row = filteredSimplifiedTable.subset.byScExpr[, grep("Cut",
+                                                                              colnames(filteredSimplifiedTable.subset.byScExpr))],
+                   annotation_colors = list("Fate" = my.fate.colors,
+                                            "Clone2Cut" = rev(my.FC.color),
+                                            "Clone1Cut" = rev(my.FC.color),
+                                            "Time" = my.time.colors),
+                   annotation_legend = T, clustering_method = "ward.D", cutree_rows = 3,
+                   width = 8, height = 12
+)
+```
+
+# Assign score to each cell
+
+## Use addModuleScore to identify which cells have activated the different genes activated or repressed in Snai1 mutant gastruloids
+
+```{r}
+# Here we will use addModuleScore to quantify where genes activated or repressed in Snai1KO gastruloids are expressed in a normal context
+if (!"Down.Score" %in% colnames(combined.seurat[[]])) {
+  genesets.down <- filteredSimplifiedTable$gene[filteredSimplifiedTable$AverageSnai1log2FC < -1]
+  genesets.up <- filteredSimplifiedTable$gene[filteredSimplifiedTable$AverageSnai1log2FC > 1]
+  combined.seurat <- AddModuleScore(combined.seurat, features = list("down" = genesets.down, "up" = genesets.up), name = "Geneset",
+                                    ctrl = min(length(genesets.down), length(genesets.up)))
+  combined.seurat$Down.Score <- combined.seurat$Geneset1
+  combined.seurat$Up.Score <- combined.seurat$Geneset2
+  combined.seurat$Geneset1 <- NULL
+  combined.seurat$Geneset2 <- NULL
+  storeNewRDS <- TRUE
+} else {
+  storeNewRDS <- FALSE
+}
+```
+
+## Plot scores on UMAP
+
+```{r}
+params$current.fig <- SwitchFigure(Fig = "5", Panel = "Downregulated.Score")
+g <- featurePlotMayran("combined.seurat", "Down.Score", params, by.rows = F, width = 8, height = 5)
+print(g)
+
+params$current.fig <- SwitchFigure(Fig = "5", Panel = "Upregulated.Score")
+g <- featurePlotMayran("combined.seurat", "Up.Score", params, by.rows = F, width = 8, height = 5)
+print(g)
+```
+
+## Finally we save the fully analyzed RDS
+
+```{r}
+if(storeNewRDS){
+  print("Saved analysed RDS does not contain Down.Score, will save it now..")
+  saveRDS(combined.seurat,file.path(RDSfolder, "analyzed", paste0("analyzed.",nameRDS)))
+  print("Done")
+} else{
+  print("Saved analysed RDS already contains Down.Score, visualization complete")
+}
+
+```

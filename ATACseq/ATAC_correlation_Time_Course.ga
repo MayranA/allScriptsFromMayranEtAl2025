@@ -1,0 +1,460 @@
+{
+    "a_galaxy_workflow": "true",
+    "annotation": "This workflow takes a collection of BAM and 4 consensus peaks and compute coverage on these peaks.",
+    "format-version": "0.1",
+    "name": "ATAC_correlation_Time_Course",
+    "steps": {
+        "0": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 0,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "ATAC-seq BAM"
+                }
+            ],
+            "label": "ATAC-seq BAM",
+            "name": "Input dataset collection",
+            "outputs": [],
+            "position": {
+                "bottom": 257.8000030517578,
+                "height": 61.80000305175781,
+                "left": 179,
+                "right": 379,
+                "top": 196,
+                "width": 200,
+                "x": 179,
+                "y": 196
+            },
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": \"\", \"collection_type\": \"list\"}",
+            "tool_version": null,
+            "type": "data_collection_input",
+            "uuid": "f772380f-1b20-45f8-b0f2-5f4a2c0238a2",
+            "workflow_outputs": []
+        },
+        "1": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 1,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "Consensus peaks 48h"
+                }
+            ],
+            "label": "Consensus peaks 48h",
+            "name": "Input dataset",
+            "outputs": [],
+            "position": {
+                "bottom": 367.1999969482422,
+                "height": 82.19999694824219,
+                "left": 220,
+                "right": 420,
+                "top": 285,
+                "width": 200,
+                "x": 220,
+                "y": 285
+            },
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": \"\"}",
+            "tool_version": null,
+            "type": "data_input",
+            "uuid": "106c64ea-02b7-426f-b0d7-f5d3d744b6a4",
+            "workflow_outputs": []
+        },
+        "2": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 2,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "Consensus peaks 72h"
+                }
+            ],
+            "label": "Consensus peaks 72h",
+            "name": "Input dataset",
+            "outputs": [],
+            "position": {
+                "bottom": 470.1999969482422,
+                "height": 82.19999694824219,
+                "left": 269,
+                "right": 469,
+                "top": 388,
+                "width": 200,
+                "x": 269,
+                "y": 388
+            },
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": \"\"}",
+            "tool_version": null,
+            "type": "data_input",
+            "uuid": "bfcad1db-d32e-469e-978f-900d970c6879",
+            "workflow_outputs": []
+        },
+        "3": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 3,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "Consensus peaks 96h"
+                }
+            ],
+            "label": "Consensus peaks 96h",
+            "name": "Input dataset",
+            "outputs": [],
+            "position": {
+                "bottom": 567.1999969482422,
+                "height": 82.19999694824219,
+                "left": 356,
+                "right": 556,
+                "top": 485,
+                "width": 200,
+                "x": 356,
+                "y": 485
+            },
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": \"\"}",
+            "tool_version": null,
+            "type": "data_input",
+            "uuid": "20a917d6-1268-499a-8a23-170e3d472c0a",
+            "workflow_outputs": []
+        },
+        "4": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 4,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "Consensus peaks 120h"
+                }
+            ],
+            "label": "Consensus peaks 120h",
+            "name": "Input dataset",
+            "outputs": [],
+            "position": {
+                "bottom": 669.1999969482422,
+                "height": 82.19999694824219,
+                "left": 410,
+                "right": 610,
+                "top": 587,
+                "width": 200,
+                "x": 410,
+                "y": 587
+            },
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": \"\"}",
+            "tool_version": null,
+            "type": "data_input",
+            "uuid": "d0f8601d-a3b4-49bb-896f-a69236e4fe22",
+            "workflow_outputs": []
+        },
+        "5": {
+            "annotation": "",
+            "content_id": "cat1",
+            "errors": null,
+            "id": 5,
+            "input_connections": {
+                "input1": {
+                    "id": 1,
+                    "output_name": "output"
+                },
+                "queries_0|input2": {
+                    "id": 2,
+                    "output_name": "output"
+                },
+                "queries_1|input2": {
+                    "id": 3,
+                    "output_name": "output"
+                },
+                "queries_2|input2": {
+                    "id": 4,
+                    "output_name": "output"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool Concatenate datasets",
+                    "name": "input1"
+                }
+            ],
+            "label": null,
+            "name": "Concatenate datasets",
+            "outputs": [
+                {
+                    "name": "out_file1",
+                    "type": "input"
+                }
+            ],
+            "position": {
+                "bottom": 534.8000030517578,
+                "height": 204.8000030517578,
+                "left": 685,
+                "right": 885,
+                "top": 330,
+                "width": 200,
+                "x": 685,
+                "y": 330
+            },
+            "post_job_actions": {
+                "HideDatasetActionout_file1": {
+                    "action_arguments": {},
+                    "action_type": "HideDatasetAction",
+                    "output_name": "out_file1"
+                }
+            },
+            "tool_id": "cat1",
+            "tool_state": "{\"input1\": {\"__class__\": \"RuntimeValue\"}, \"queries\": [{\"__index__\": 0, \"input2\": {\"__class__\": \"RuntimeValue\"}}, {\"__index__\": 1, \"input2\": {\"__class__\": \"RuntimeValue\"}}, {\"__index__\": 2, \"input2\": {\"__class__\": \"RuntimeValue\"}}], \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "1.0.0",
+            "type": "tool",
+            "uuid": "cc9d79a9-381e-4b53-94d9-8f26cb3b231b",
+            "workflow_outputs": []
+        },
+        "6": {
+            "annotation": "",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_sortbed/2.30.0+galaxy2",
+            "errors": null,
+            "id": 6,
+            "input_connections": {
+                "input": {
+                    "id": 5,
+                    "output_name": "out_file1"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool bedtools SortBED",
+                    "name": "input"
+                }
+            ],
+            "label": null,
+            "name": "bedtools SortBED",
+            "outputs": [
+                {
+                    "name": "output",
+                    "type": "input"
+                }
+            ],
+            "position": {
+                "bottom": 484.3999938964844,
+                "height": 154.39999389648438,
+                "left": 905,
+                "right": 1105,
+                "top": 330,
+                "width": 200,
+                "x": 905,
+                "y": 330
+            },
+            "post_job_actions": {
+                "HideDatasetActionoutput": {
+                    "action_arguments": {},
+                    "action_type": "HideDatasetAction",
+                    "output_name": "output"
+                }
+            },
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_sortbed/2.30.0+galaxy2",
+            "tool_shed_repository": {
+                "changeset_revision": "a1a923cd89e8",
+                "name": "bedtools",
+                "owner": "iuc",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"genome_file_opts\": {\"genome_file_opts_selector\": \"loc\", \"__current_case__\": 0, \"genome\": \"mm10_UCSC\"}, \"input\": {\"__class__\": \"RuntimeValue\"}, \"option\": \"\", \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "2.30.0+galaxy2",
+            "type": "tool",
+            "uuid": "97cad190-7cc5-4a1f-b7b3-f71a123ca229",
+            "workflow_outputs": []
+        },
+        "7": {
+            "annotation": "",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_mergebed/2.30.0",
+            "errors": null,
+            "id": 7,
+            "input_connections": {
+                "input": {
+                    "id": 6,
+                    "output_name": "output"
+                }
+            },
+            "inputs": [],
+            "label": null,
+            "name": "bedtools MergeBED",
+            "outputs": [
+                {
+                    "name": "output",
+                    "type": "bed"
+                }
+            ],
+            "position": {
+                "bottom": 484.3999938964844,
+                "height": 154.39999389648438,
+                "left": 1125,
+                "right": 1325,
+                "top": 330,
+                "width": 200,
+                "x": 1125,
+                "y": 330
+            },
+            "post_job_actions": {},
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_mergebed/2.30.0",
+            "tool_shed_repository": {
+                "changeset_revision": "a1a923cd89e8",
+                "name": "bedtools",
+                "owner": "iuc",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"__input_ext\": \"input\", \"c_and_o_argument_repeat\": [], \"chromInfo\": \"/data/galaxy/galaxy/var/tool-data/mm10_UCSC/len/mm10_UCSC.len\", \"distance\": \"0\", \"header\": \"false\", \"input\": {\"__class__\": \"ConnectedValue\"}, \"strand\": \"\", \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "2.30.0",
+            "type": "tool",
+            "uuid": "02be7efd-ec3d-4550-97c9-3f94e9e97839",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "output",
+                    "uuid": "bc376ada-ee1c-4317-b344-2e1ee97326df"
+                }
+            ]
+        },
+        "8": {
+            "annotation": "",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_multi_bam_summary/deeptools_multi_bam_summary/3.5.2+galaxy0",
+            "errors": null,
+            "id": 8,
+            "input_connections": {
+                "mode|region_file": {
+                    "id": 7,
+                    "output_name": "output"
+                },
+                "multibam_conditional|bamfiles": {
+                    "id": 0,
+                    "output_name": "output"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool multiBamSummary",
+                    "name": "multibam_conditional"
+                }
+            ],
+            "label": null,
+            "name": "multiBamSummary",
+            "outputs": [
+                {
+                    "name": "outFile",
+                    "type": "deeptools_coverage_matrix"
+                },
+                {
+                    "name": "outFileRawCounts",
+                    "type": "tabular"
+                }
+            ],
+            "position": {
+                "bottom": 647.2000122070312,
+                "height": 317.20001220703125,
+                "left": 1345,
+                "right": 1545,
+                "top": 330,
+                "width": 200,
+                "x": 1345,
+                "y": 330
+            },
+            "post_job_actions": {},
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_multi_bam_summary/deeptools_multi_bam_summary/3.5.2+galaxy0",
+            "tool_shed_repository": {
+                "changeset_revision": "1fcb7adc39b8",
+                "name": "deeptools_multi_bam_summary",
+                "owner": "bgruening",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"__input_ext\": \"input\", \"advancedOpt\": {\"showAdvancedOpt\": \"no\", \"__current_case__\": 0}, \"chromInfo\": \"/data/galaxy/galaxy/var/tool-data/mm10_UCSC/len/mm10_UCSC.len\", \"custom_sample_labels_conditional\": {\"custom_labels_select\": \"No\", \"__current_case__\": 0}, \"mode\": {\"modeOpt\": \"BED-file\", \"__current_case__\": 1, \"region_file\": {\"__class__\": \"ConnectedValue\"}}, \"multibam_conditional\": {\"orderMatters\": \"No\", \"__current_case__\": 0, \"bamfiles\": {\"__class__\": \"RuntimeValue\"}}, \"outRawCounts\": \"true\", \"region\": \"\", \"scalingFactors\": \"false\", \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "3.5.2+galaxy0",
+            "type": "tool",
+            "uuid": "6486b3e8-5e36-4678-970e-f65cd3213f36",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "outFileRawCounts",
+                    "uuid": "ac7d4802-0233-428e-bc8e-7f50f50c872e"
+                },
+                {
+                    "label": null,
+                    "output_name": "outFile",
+                    "uuid": "9e0049fb-3934-4c04-8247-85efa2459010"
+                }
+            ]
+        },
+        "9": {
+            "annotation": "",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_plot_correlation/deeptools_plot_correlation/3.5.2+galaxy0",
+            "errors": null,
+            "id": 9,
+            "input_connections": {
+                "corData": {
+                    "id": 8,
+                    "output_name": "outFile"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool plotCorrelation",
+                    "name": "corData"
+                }
+            ],
+            "label": null,
+            "name": "plotCorrelation",
+            "outputs": [
+                {
+                    "name": "outFileName",
+                    "type": "png"
+                }
+            ],
+            "position": {
+                "bottom": 484.3999938964844,
+                "height": 154.39999389648438,
+                "left": 1565,
+                "right": 1765,
+                "top": 330,
+                "width": 200,
+                "x": 1565,
+                "y": 330
+            },
+            "post_job_actions": {},
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_plot_correlation/deeptools_plot_correlation/3.5.2+galaxy0",
+            "tool_shed_repository": {
+                "changeset_revision": "2c66e43f1c86",
+                "name": "deeptools_plot_correlation",
+                "owner": "bgruening",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"corData\": {\"__class__\": \"RuntimeValue\"}, \"corMethod\": \"spearman\", \"outFileCorMatrix\": \"false\", \"outFileFormat\": \"png\", \"plotting_type\": {\"whatToPlot\": \"heatmap\", \"__current_case__\": 0, \"zMin\": \"\", \"zMax\": \"\", \"colorMap\": \"RdYlBu\", \"plotTitle\": \"\", \"plotNumbers\": \"true\", \"plotHeight\": \"9.5\", \"plotWidth\": \"11.0\"}, \"removeOutliers\": \"false\", \"skipZeros\": \"false\", \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "3.5.2+galaxy0",
+            "type": "tool",
+            "uuid": "43017614-cf22-453a-830c-098c2e3d0e4d",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "outFileName",
+                    "uuid": "9a16b58e-bb36-42d4-b484-9a7924b57105"
+                }
+            ]
+        }
+    },
+    "tags": [],
+    "uuid": "302cda53-447b-4ec2-835b-bae44fd82fac",
+    "version": 5
+}

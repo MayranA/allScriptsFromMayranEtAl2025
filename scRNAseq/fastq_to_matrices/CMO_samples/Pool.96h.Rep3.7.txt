@@ -1,0 +1,2 @@
+	Cell Multiplexing Oligo 304	Cell Multiplexing Oligo 305	Cell Multiplexing Oligo 306	Cell Multiplexing Oligo 307	Cell Multiplexing Oligo 308	Cell Multiplexing Oligo 309	
+Pool.96h.Rep3.7	96h.WT.rep3	NA	96h.WT.rep7	NA	NA	NA

@@ -1,0 +1,153 @@
+---
+title: "Comparative elongation in Snai1KO"
+format:
+  html:
+    fig-width: 8
+    fig-height: 7
+editor: visual
+author : Lucille Delisle
+---
+
+```{r, setup, include=FALSE}
+# choose working directory
+wd <- "/data/home/ldelisle/tempAllScriptsFromMayranEtAl2023"
+knitr::opts_knit$set(root.dir = wd)
+```
+
+# Dependencies
+
+```{r, dependencies}
+# Install required packages
+if (!"devtools" %in% installed.packages()) {
+    install.packages("devtools", repos = "https://stat.ethz.ch/CRAN/")
+}
+if (!"usefulLDfunctions" %in% installed.packages()) {
+    devtools::install_github("lldelisle/usefulLDfunctions")
+}
+library(usefulLDfunctions)
+safelyLoadAPackageInCRANorBioconductor("reshape2")
+safelyLoadAPackageInCRANorBioconductor("dplyr")
+safelyLoadAPackageInCRANorBioconductor("ggplot2")
+safelyLoadAPackageInCRANorBioconductor("ggtext")
+safelyLoadAPackageInCRANorBioconductor("ggh4x")
+```
+
+# Parameters
+
+```{r}
+input.txt <- "phenotype_Snai1KO/input_phenotype.txt"
+my.colors <- c("single axis" = "darkred", "multiple axes" = "grey70", "ovoid weak elongation" = "grey 30")
+
+output.dir <- "output.files/phenotype_Snai1KO"
+```
+
+
+# Read input and reorganize
+
+```{r, import data}
+original.df <- read.delim(input.txt, check.names = FALSE, skip = 1)
+header <- readLines(input.txt, n = 1)
+colnames(original.df) <- paste(colnames(original.df), strsplit(header, "\t")[[1]], sep = "__")
+colnames(original.df)[1] <- "batch"
+# Reshape
+reshaped.df <- melt(original.df, id = "batch")
+reshaped.df$phenotype <- sapply(strsplit(as.character(reshaped.df$variable), "__"), head, n = 1)
+reshaped.df$phenotype <- gsub("elong$", "elongation", reshaped.df$phenotype)
+reshaped.df$genotype <- sapply(strsplit(as.character(reshaped.df$variable), "__"), tail, n = 1)
+# Hide the genotype of WT
+reshaped.df$genotype[reshaped.df$genotype == "WT"] <- ""
+reshaped.df$batch <- as.character(reshaped.df$batch)
+# Reorder factors
+reshaped.df$genotype <- factor(reshaped.df$genotype, levels = c("", "Clone 1", "Clone 2"))
+reshaped.df$super.geno <- "Snai1<sup>+/+</sup>"
+reshaped.df$super.geno[reshaped.df$genotype != ""] <- "Snai1<sup>-/-</sup>"
+reshaped.df$super.geno <- factor(
+    reshaped.df$super.geno,
+    levels = paste0("Snai1<sup>", c("+", "-"), "/", c("+", "-"), "</sup>")
+)
+reshaped.df$phenotype <- factor(reshaped.df$phenotype, levels = names(my.colors))
+```
+
+# Compute Proportions
+
+```{r, compute proportions}
+proportions.df <- reshaped.df %>%
+    group_by(genotype, batch) %>%
+    mutate(
+        proportion = value / sum(value),
+        n = sum(value)
+    ) %>%
+    ungroup(batch) %>%
+    filter(n != 0)
+```
+
+# Plot
+
+```{r, plot}
+n.tots <- summarize(proportions.df, ntot = sum(value))
+n.tots$phenotype <- factor("multiple axes", levels = levels(proportions.df$phenotype))
+n.tots$proportion <- 1.05
+n.tots$super.geno <- factor(
+    proportions.df$super.geno[match(n.tots$genotype, proportions.df$genotype)],
+    levels = levels(proportions.df$super.geno)
+)
+# For reproducible jitter:
+set.seed(28)
+g <- ggplot(proportions.df, aes(x = phenotype, y = proportion, fill = phenotype)) +
+    stat_summary(
+        geom = "errorbar",
+        # fun.min = function(x){mean(x) - sd(x)},
+        fun.min = mean,
+        fun.max = function(x) {
+            mean(x) + sd(x)
+        },
+        width = 0.5
+    ) +
+    stat_summary(geom = "bar", fun = mean, color = "black") +
+    geom_jitter(aes(shape = batch), show.legend = FALSE) +
+    facet_nested(. ~ super.geno + genotype,
+        switch = "x",
+        nest_line = element_line()
+    ) +
+    geom_text(
+        data = n.tots,
+        aes(label = paste("N =", ntot)),
+        size = 5
+    ) +
+    theme_classic() +
+    scale_y_continuous(
+        expand = expansion(mult = c(.01, .02)),
+        labels = scales::percent,
+        breaks = seq(0, 1, 0.2)
+    ) +
+    scale_shape_manual("",
+        values = 4:14, guide = "none"
+    ) +
+    scale_fill_manual("",
+        values = my.colors
+    ) +
+    theme(
+        text = element_text(size = 20),
+        strip.text = element_markdown(),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.line.x = element_blank(),
+        strip.background.x = element_rect(color = NA, fill = NA),
+        legend.position = "bottom",
+        legend.text = element_text(margin = margin(r = 20))
+    )
+# For reproducible jitter:
+set.seed(28)
+ggsave(file.path(output.dir, "prop.Snai1.png"), width = 8, height = 7)
+set.seed(28)
+ggsave(file.path(output.dir, "prop.Snai1.pdf"), width = 8, height = 7)
+set.seed(28)
+print(g)
+```
+Write sessionInfo to file:
+
+```{r}
+writeLines(capture.output(sessionInfo()), "phenotype_Snai1KO/sessionInfo.txt")
+```
+

@@ -1,0 +1,196 @@
+{
+    "a_galaxy_workflow": "true",
+    "annotation": "We assume the identifiers of the input list are like:\nsample_name_replicateID.\nThe identifiers of the output list will be:\nsample_name",
+    "creator": [
+        {
+            "class": "Person",
+            "identifier": "https://orcid.org/0000-0002-1964-4960",
+            "name": "Lucille Delisle"
+        }
+    ],
+    "format-version": "0.1",
+    "license": "MIT",
+    "name": "Average Bigwig between replicates",
+    "steps": {
+        "0": {
+            "annotation": "We assume the identifiers are like:\nsample_name_replicateID",
+            "content_id": null,
+            "errors": null,
+            "id": 0,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "We assume the identifiers are like:\nsample_name_replicateID",
+                    "name": "Bigwig to average"
+                }
+            ],
+            "label": "Bigwig to average",
+            "name": "Input dataset collection",
+            "outputs": [],
+            "position": {
+                "bottom": 439.6999969482422,
+                "height": 82.19999694824219,
+                "left": 935,
+                "right": 1135,
+                "top": 357.5,
+                "width": 200,
+                "x": 935,
+                "y": 357.5
+            },
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": \"\", \"collection_type\": \"list\"}",
+            "tool_version": null,
+            "type": "data_collection_input",
+            "uuid": "45d1d287-ea71-4817-afd2-8ad89aedac46",
+            "workflow_outputs": []
+        },
+        "1": {
+            "annotation": "Bin size for normalized bigwig (usually 5bp is sufficient)",
+            "content_id": null,
+            "errors": null,
+            "id": 1,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "Bin size for normalized bigwig (usually 5bp is sufficient)",
+                    "name": "bin_size"
+                }
+            ],
+            "label": "bin_size",
+            "name": "Input parameter",
+            "outputs": [],
+            "position": {
+                "bottom": 544.3000030517578,
+                "height": 61.80000305175781,
+                "left": 951,
+                "right": 1151,
+                "top": 482.5,
+                "width": 200,
+                "x": 951,
+                "y": 482.5
+            },
+            "tool_id": null,
+            "tool_state": "{\"parameter_type\": \"integer\", \"optional\": false}",
+            "tool_version": null,
+            "type": "parameter_input",
+            "uuid": "ae41572a-bafb-40d4-8042-87f07552980f",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "output",
+                    "uuid": "a60dd6c3-c358-4d8d-97d9-89a3f41aa7f8"
+                }
+            ]
+        },
+        "2": {
+            "annotation": "",
+            "content_id": "__APPLY_RULES__",
+            "errors": null,
+            "id": 2,
+            "input_connections": {
+                "input": {
+                    "id": 0,
+                    "output_name": "output"
+                }
+            },
+            "inputs": [],
+            "label": null,
+            "name": "Apply rules",
+            "outputs": [
+                {
+                    "name": "output",
+                    "type": "input"
+                }
+            ],
+            "position": {
+                "bottom": 462.1999969482422,
+                "height": 93.19999694824219,
+                "left": 1189,
+                "right": 1389,
+                "top": 369,
+                "width": 200,
+                "x": 1189,
+                "y": 369
+            },
+            "post_job_actions": {
+                "HideDatasetActionoutput": {
+                    "action_arguments": {},
+                    "action_type": "HideDatasetAction",
+                    "output_name": "output"
+                }
+            },
+            "tool_id": "__APPLY_RULES__",
+            "tool_state": "{\"input\": {\"__class__\": \"ConnectedValue\"}, \"rules\": {\"mapping\": [{\"collapsible_value\": {\"__class__\": \"RuntimeValue\"}, \"columns\": [1, 2], \"connectable\": true, \"editing\": false, \"is_workflow\": false, \"type\": \"list_identifiers\"}], \"rules\": [{\"collapsible_value\": {\"__class__\": \"RuntimeValue\"}, \"connectable\": true, \"error\": null, \"is_workflow\": false, \"type\": \"add_column_metadata\", \"value\": \"identifier0\", \"warn\": null}, {\"collapsible_value\": {\"__class__\": \"RuntimeValue\"}, \"connectable\": true, \"error\": null, \"expression\": \"^(.*)_([^_]*)$\", \"is_workflow\": false, \"replacement\": \"\\\\1\", \"target_column\": 0, \"type\": \"add_column_regex\", \"warn\": null}, {\"collapsible_value\": {\"__class__\": \"RuntimeValue\"}, \"connectable\": true, \"error\": null, \"expression\": \"^(.*)_([^_]*)$\", \"is_workflow\": false, \"replacement\": \"\\\\2\", \"target_column\": 0, \"type\": \"add_column_regex\", \"warn\": null}]}, \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "1.1.0",
+            "type": "tool",
+            "uuid": "5532681e-f2b3-415c-87e2-71d5eb982d62",
+            "workflow_outputs": []
+        },
+        "3": {
+            "annotation": "",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bigwig_average/deeptools_bigwig_average/3.5.4+galaxy0",
+            "errors": null,
+            "id": 3,
+            "input_connections": {
+                "advancedOpt|binSize": {
+                    "id": 1,
+                    "output_name": "output"
+                },
+                "bigwigs": {
+                    "id": 2,
+                    "output_name": "output"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool bigwigAverage",
+                    "name": "advancedOpt"
+                },
+                {
+                    "description": "runtime parameter for tool bigwigAverage",
+                    "name": "bigwigs"
+                }
+            ],
+            "label": "average bigwigs from different replicates",
+            "name": "bigwigAverage",
+            "outputs": [
+                {
+                    "name": "outFileName",
+                    "type": "bigwig"
+                }
+            ],
+            "position": {
+                "bottom": 689.3999938964844,
+                "height": 276.3999938964844,
+                "left": 1455,
+                "right": 1655,
+                "top": 413,
+                "width": 200,
+                "x": 1455,
+                "y": 413
+            },
+            "post_job_actions": {},
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bigwig_average/deeptools_bigwig_average/3.5.4+galaxy0",
+            "tool_shed_repository": {
+                "changeset_revision": "4a53856a5b85",
+                "name": "deeptools_bigwig_average",
+                "owner": "bgruening",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"advancedOpt\": {\"showAdvancedOpt\": \"yes\", \"__current_case__\": 1, \"binSize\": {\"__class__\": \"ConnectedValue\"}, \"skipNAs\": \"false\", \"scaleFactors\": \"1\", \"blackListFileName\": {\"__class__\": \"RuntimeValue\"}}, \"bigwigs\": {\"__class__\": \"RuntimeValue\"}, \"outFileFormat\": \"bigwig\", \"region\": \"\", \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "3.5.4+galaxy0",
+            "type": "tool",
+            "uuid": "385c2278-ae54-4db3-bb5c-01b85ad5efdb",
+            "workflow_outputs": [
+                {
+                    "label": "average_bigwig",
+                    "output_name": "outFileName",
+                    "uuid": "056c5985-0afd-42bd-abc6-8823560177e8"
+                }
+            ]
+        }
+    },
+    "tags": [],
+    "uuid": "fa50bce6-d042-42fa-8d20-040bff1d238d",
+    "version": 7
+}

@@ -1,0 +1,2 @@
+	Cell Multiplexing Oligo 304	Cell Multiplexing Oligo 305	Cell Multiplexing Oligo 306	Cell Multiplexing Oligo 307	Cell Multiplexing Oligo 308	Cell Multiplexing Oligo 309	Cell Multiplexing Oligo 310
+Pool_72h.WT.rep2.3.vs.Snai1KO.rep1.2	72h.WT.rep2	72h.WT.rep3	72h.Snai1.KO.clone1	72h.Snai1.KO.clone2	NA	NA	NA

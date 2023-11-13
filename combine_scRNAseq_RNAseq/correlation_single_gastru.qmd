@@ -1,0 +1,127 @@
+---
+title: "Correlation single gastruloids"
+author: "Lucille Delisle"
+format: html
+editor: visual
+---
+
+```{r, setup, include=FALSE}
+# choose working directory
+wd <- "/data/home/ldelisle/tempAllScriptsFromMayranEtAl2023"
+knitr::opts_knit$set(root.dir = wd)
+```
+
+## Objective
+
+Plot correlation of log(1+FPKM) values across the 10 single gastruloids for specific genes.
+
+## Parameters
+
+```{r}
+FPKM.table.fn <- "output.files/RNAseq/mergedTables/single_gastruloids/AllCufflinks_Simplified.txt.gz"
+list.genes.fn <- "output.files/scRNAseq/matrices_to_plots/WT.subset.48h72h/markers.48-72h.csv"
+scRNAseqParam.file.path <- "scRNAseq/matrices_to_plots/scRNAseqWTparams.R"
+
+output.dir <- "output.files/combine_scRNAseq_RNAseq/gene_correlation_on_single_gastru"
+```
+
+## Dependencies
+
+```{r}
+# Install required packages
+if (!"devtools" %in% installed.packages()) {
+    install.packages("devtools", repos = "https://stat.ethz.ch/CRAN/")
+}
+if (!"usefulLDfunctions" %in% installed.packages()) {
+    devtools::install_github("lldelisle/usefulLDfunctions")
+}
+library(usefulLDfunctions)
+safelyLoadAPackageInCRANorBioconductor("dplyr")
+safelyLoadAPackageInCRANorBioconductor("pheatmap")
+safelyLoadAPackageInCRANorBioconductor("scales")
+
+source(scRNAseqParam.file.path)
+
+```
+
+## Import
+
+```{r}
+FPKM.table <- read.delim(FPKM.table.fn)
+# Filter for genes non-expressed
+FPKM.table <- FPKM.table %>% filter(
+    (FPKM.table %>%
+        select(starts_with("FPKM_")) %>%
+        rowSums()) != 0
+)
+list.genes.df <- read.csv(list.genes.fn, row.names = 1)
+# Filter for genes in FPKM table:
+list.genes.df <- list.genes.df %>%
+    filter(gene %in% FPKM.table$gene_short_name)
+```
+
+## Adjust colors
+
+```{r}
+annotation_colors <- list(cluster = my.fate.colors[intersect(
+    names(my.fate.colors),
+    list.genes.df$cluster
+)])
+```
+
+## For loop for each top:
+
+```{r}
+all.top.genes <- 5
+for (n.top.genes in all.top.genes) {
+    # Get genes
+    temp.genes.df <- list.genes.df %>%
+        group_by(cluster) %>%
+        top_n(n = n.top.genes, wt = avg_log2FC) %>%
+        ungroup() %>%
+        filter(!gene %in% gene[duplicated(gene)])
+    # Get the number of genes per cluster
+    min.top <- min(temp.genes.df %>%
+        group_by(cluster) %>%
+        summarize(n = n()) %>%
+        select(n))
+    genes.df <- temp.genes.df %>%
+        group_by(cluster) %>%
+        top_n(n = n.top.genes, wt = avg_log2FC) %>%
+        ungroup()
+
+    # Select expression
+    expression.df <- FPKM.table %>%
+        filter(gene_short_name %in% genes.df$gene) %>%
+        tibble::column_to_rownames(var = "gene_short_name") %>%
+        select(starts_with("FPKM_"))
+
+    # Compute correlation
+    cor.mat <- cor(log(1 + t(expression.df)))
+
+    # Clustering
+    gene.dist <- dist(cor.mat)
+    clu <- hclust(gene.dist, method = "ward.D2")
+    dd <- as.dendrogram(clu)
+    clu2 <- reorder(dd, -match(rownames(cor.mat), genes.df$gene), agglo.FUN = mean)
+
+    # Annotate
+    df.annot <- genes.df %>%
+        tibble::column_to_rownames(var = "gene") %>%
+        select(cluster)
+
+    # Plot
+    dir.create(output.dir, showWarnings = FALSE, recursive = TRUE)
+    pheatmap(cor.mat,
+        display_numbers = TRUE,
+        cluster_rows = as.hclust(clu2),
+        cluster_cols = as.hclust(clu2),
+        annotation_row = df.annot,
+        annotation_col = df.annot,
+        annotation_colors = annotation_colors,
+        filename = file.path(output.dir, paste0("Top_", min.top, ".pdf")),
+        height = 7,
+        width = 9
+    )
+}
+```

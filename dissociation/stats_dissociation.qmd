@@ -1,0 +1,163 @@
+---
+title: "Comparative elongation after dissociation"
+format:
+  html:
+    fig-width: 8
+    fig-height: 7
+editor: visual
+author : Lucille Delisle
+---
+
+```{r, setup, include=FALSE}
+# choose working directory
+wd <- "/data/home/ldelisle/tempAllScriptsFromMayranEtAl2023"
+knitr::opts_knit$set(root.dir = wd)
+```
+
+# Dependencies
+
+```{r, dependencies}
+# Install required packages
+if (!"devtools" %in% installed.packages()) {
+    install.packages("devtools", repos = "https://stat.ethz.ch/CRAN/")
+}
+if (!"usefulLDfunctions" %in% installed.packages()) {
+    devtools::install_github("lldelisle/usefulLDfunctions")
+}
+library(usefulLDfunctions)
+safelyLoadAPackageInCRANorBioconductor("reshape2")
+safelyLoadAPackageInCRANorBioconductor("dplyr")
+safelyLoadAPackageInCRANorBioconductor("ggplot2")
+safelyLoadAPackageInCRANorBioconductor("ggpubr")
+safelyLoadAPackageInCRANorBioconductor("ggtext")
+```
+
+
+# Parameters
+
+```{r}
+input.csv <- "dissociation/stat.dissociation.csv"
+
+output.dir <- "output.files/dissociation"
+```
+
+
+# Read input and reorganize
+
+```{r, import data}
+original.df <- read.csv(input.csv, check.names = FALSE)
+original.df[, which(colnames(original.df) == "")] <- NULL
+cols.exp1 <- which(colnames(original.df) == "Expt 1")
+# Reshape by block:
+reshaped.df.1 <- melt(original.df[, (cols.exp1[1] - 1):(cols.exp1[2] - 2)])
+reshaped.df.1$status <- colnames(reshaped.df.1)[1]
+colnames(reshaped.df.1)[1] <- "Condition"
+reshaped.df.2 <- melt(original.df[, (cols.exp1[2] - 1):ncol(original.df)])
+reshaped.df.2$status <- colnames(reshaped.df.2)[1]
+colnames(reshaped.df.2)[1] <- "Condition"
+reshaped.df <- rbind(reshaped.df.1, reshaped.df.2)
+reshaped.df <- reshaped.df %>%
+    filter(!is.na(value))
+```
+
+# Compute Proportions
+
+```{r, compute proportions}
+proportions.df <- reshaped.df %>%
+    group_by(Condition, variable) %>%
+    summarize(
+        proportion = value[status == "Elongated"] / sum(value),
+        n = sum(value)
+    )
+```
+
+# Plot and stats
+
+## Stats
+
+```{r, stats}
+
+stats <- compare_means(
+    data = proportions.df, formula = proportion ~ Condition,
+    method = "wilcox.test",
+    comparisons = as.list(as.data.frame(combn(unique(proportions.df$Condition), 2)))
+)
+print(stats)
+```
+
+```{r, stat_result, include=FALSE}
+# # A tibble: 10 × 8
+#    .y.        group1 group2           p p.adj p.format p.signif method
+#    <chr>      <chr>  <chr>        <dbl> <dbl> <chr>    <chr>    <chr>
+#  1 proportion 0hpa   48hpa       0.201   1    0.201    ns       Wilcoxon
+#  2 proportion 0hpa   72hpa       0.306   1    0.306    ns       Wilcoxon
+#  3 proportion 0hpa   96hpa       0.0159  0.16 0.016    *        Wilcoxon
+#  4 proportion 0hpa   96hpa round 0.434   1    0.434    ns       Wilcoxon
+#  5 proportion 48hpa  72hpa       1       1    1.000    ns       Wilcoxon
+#  6 proportion 48hpa  96hpa       0.0265  0.24 0.027    *        Wilcoxon
+#  7 proportion 48hpa  96hpa round 1       1    1.000    ns       Wilcoxon
+#  8 proportion 72hpa  96hpa       0.0265  0.24 0.027    *        Wilcoxon
+#  9 proportion 72hpa  96hpa round 1       1    1.000    ns       Wilcoxon
+# 10 proportion 96hpa  96hpa round 0.133   0.93 0.133    ns       Wilcoxon
+```
+
+## Plot
+
+```{r, plot}
+x.labels <- gsub("hpa", "h", unique(proportions.df$Condition))
+names(x.labels) <- unique(proportions.df$Condition)
+n.tots <- summarize(proportions.df, ntot = sum(n))
+x.labels <- paste(x.labels, "<br><span style = 'font-size:12pt'>N = ", n.tots$ntot[match(names(x.labels), n.tots$Condition)], "</span>")
+names(x.labels) <- unique(proportions.df$Condition)
+# For reproducible jitter:
+set.seed(28)
+ggplot(proportions.df, aes(x = Condition, y = proportion)) +
+    stat_summary(
+        geom = "errorbar",
+        # fun.min = function(x){mean(x) - sd(x)},
+        fun.min = mean,
+        fun.max = function(x) {
+            mean(x) + sd(x)
+        },
+        width = 0.5
+    ) +
+    stat_summary(geom = "bar", fun = mean, color = "black", fill = "white") +
+    geom_jitter(aes(shape = variable)) +
+    stat_pvalue_manual(
+        stats %>%
+            filter(p.signif != "ns") %>%
+            mutate(y.position = 1.03 + 1:length(group1) * 0.05),
+        label = "p.signif",
+        tip.length = 0.01
+    ) +
+    theme_classic() +
+    theme(
+        axis.line.y = element_blank(),
+        text = element_text(size = 20),
+        axis.text.x = element_markdown(),
+        legend.position = c(0.87, .6),
+        legend.margin = margin(0.1, 0.1, 0.1, 0.1, "cm")
+    ) +
+    scale_y_continuous(
+        expand = expansion(mult = c(0, .02)),
+        labels = scales::percent,
+        breaks = seq(0, 1, 0.25)
+    ) +
+    scale_shape_manual("",
+        values = 4:14
+    ) +
+    ylab("Proportion of Elongated gastruloids") +
+    scale_x_discrete(labels = x.labels) +
+    xlab("")
+# For reproducible jitter:
+set.seed(28)
+ggsave(file.path(output.dir, "prop.elong.png"), width = 5, height = 7)
+set.seed(28)
+ggsave(file.path(output.dir, "prop.elong.pdf"), width = 5, height = 7)
+```
+
+Write sessionInfo to file:
+
+```{r}
+writeLines(capture.output(sessionInfo()), "dissociation/sessionInfo.txt")
+```

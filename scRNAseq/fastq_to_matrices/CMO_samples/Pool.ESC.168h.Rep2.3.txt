@@ -1,0 +1,2 @@
+	Cell Multiplexing Oligo 305	Cell Multiplexing Oligo 306	Cell Multiplexing Oligo 307	Cell Multiplexing Oligo 308	Cell Multiplexing Oligo 310	Cell Multiplexing Oligo 311	Cell Multiplexing Oligo 312
+Pool.ESC.168h.Rep2.3	mESC.rep1	NA	NA	168h.WT.rep2	NA	NA	168h.WT.rep3

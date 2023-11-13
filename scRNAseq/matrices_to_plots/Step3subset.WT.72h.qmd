@@ -1,0 +1,347 @@
+---
+title: "Single cell RNAseq analysis of WT gastruloids (72h)"
+format: html
+editor: visual
+author : Alexandre Mayran
+---
+
+```{r, setup, include=FALSE}
+# choose working directory
+wd <- "/data/home/ldelisle/tempAllScriptsFromMayranEtAl2023"
+knitr::opts_knit$set(root.dir = wd)
+```
+
+# Subset only the cells of interest
+
+## We load all the required packages
+
+```{r}
+#| label: Loading packages and variable
+scRNAseqFunctions.file.path <- "scRNAseq/matrices_to_plots/scRNAseqFunctions.R"
+scRNAseqParam.file.path <- "scRNAseq/matrices_to_plots/scRNAseqWTparams.R"
+source(scRNAseqFunctions.file.path)
+source(scRNAseqParam.file.path)
+```
+
+
+## We define the parameters for display
+
+```{r}
+# Here you need to define the name of the folder where the RDS is
+RDSfolder <- "../mountDuboule/Alex/R/RDS_new"
+# This output.directory will be used for plots
+output.directory <- "output.files/scRNAseq/matrices_to_plots/WT.subset.72h/"
+# Here put name of merged RDS as given in step 2
+nameRDS <- "combined.WT_ad2bdca4.RDS"
+# Metadata present in the combined seurat which will be used to subset:
+metadata.subset <- "Sample.name"
+# Values to keep
+metadata.subset.values <- c("72h.WT.rep1", "72h.WT.rep2")
+# Subsetted RDS
+nameRDS.subset <- "subset.72h.velocity.seurat.RDS"
+# To do velocyto:
+LoomFolder <- "../mountDuboule/Alex/R/raw/loom/"
+# Check the subsetted RDS file exists or the combined:
+if (file.exists(file.path(RDSfolder, "analyzed", nameRDS.subset))){
+  print(paste0(nameRDS.subset, " RDS file found, you can proceed"))
+} else if(file.exists(file.path(RDSfolder, "merged", paste0(nameRDS)))){
+  print(paste0(nameRDS," RDS file found, you can proceed"))
+} else{
+  stop(paste0(nameRDS," RDS file not found, check the location"))
+}
+```
+## If the analyzed RDS does not exists load the big RDS and subset
+
+### Load big RDS
+
+```{r}
+if (file.exists(file.path(RDSfolder, "analyzed", nameRDS.subset))){
+  print("Analyzed RDS already exist will just run the visualizations")
+  subset.seurat <- readRDS(file.path(RDSfolder, "analyzed", nameRDS.subset))
+} else{
+  print("Analyzed RDS does not exist will perform subset, analysis and visualization")
+  combined.seurat <- readRDS(file.path(RDSfolder, "merged", paste0(nameRDS)))
+}
+```
+
+### Now we subset the 72h timepoint where diversification occurs and run PCA
+
+```{r}
+
+if (!file.exists(file.path(RDSfolder, "analyzed", nameRDS.subset))){
+  subset.seurat <- subset(combined.seurat,
+                          cells = colnames(combined.seurat)
+                          [combined.seurat[[]][, metadata.subset]
+                            %in% metadata.subset.values])
+  # We do not need combined.seurat anymore
+  rm(combined.seurat)
+  subset.seurat <- NormalizeData(subset.seurat,
+                                 verbose = FALSE)
+  subset.seurat <- FindVariableFeatures(subset.seurat,
+                                        verbose = FALSE, nfeatures = 1000)
+  cat("Scaling merged object..\n")
+  subset.seurat <- ScaleData(subset.seurat,
+                             verbose = TRUE,
+                             vars.to.regress = c("percent.mt", "S.Score",
+                                                 "G2M.Score"))
+  manual.removal.genes <- ""
+  if (length(unique(subset.seurat$Directory)) > 1) {
+    cat("more than one 10x well detected, restricting variable features to limit batch effect",
+        "\nvariable features will include gene with expression between 0.05 and 0.8 percentile\n")
+    average.expression <- rowMeans(AverageExpression(subset.seurat, group.by = "Directory")[[1]])
+    genes.to.exclude <- names(average.expression[average.expression < quantile(average.expression,
+                                                                               0.05) | average.expression > quantile(average.expression,
+                                                                                                                     0.8)])
+    
+    
+    used.var.gene <- setdiff(VariableFeatures(subset.seurat),
+                             c(genes.to.exclude, manual.removal.genes))
+    
+  } else {
+    cat("Only experiments from a single 10x well is detected,\n 
+        all variable genes are used as there shouldn't be batch effect\n")
+    #run PCA analysis
+    used.var.gene <- setdiff(VariableFeatures(subset.seurat),
+                             c(manual.removal.genes))
+  }
+  subset.seurat <- RunPCA(subset.seurat, npcs = 50, verbose = FALSE, features = used.var.gene)
+}
+```
+
+### Run UMAP and clustering
+
+```{r}
+ElbowPlot(subset.seurat, ndims = 50)
+
+if (!file.exists(file.path(RDSfolder, "analyzed", nameRDS.subset))){
+  subset.seurat <- RunUMAP(subset.seurat, reduction = "pca",
+                           n.components = 2L,  
+                           dims = 1:10, seed.use = 13)
+  subset.seurat <- FindNeighbors(subset.seurat, reduction = "pca",
+                                 dims = 1:10)
+  subset.seurat <- FindClusters(subset.seurat, resolution = 0.2)
+}
+```
+
+# Basic plots
+
+## Here, we identify the clusters, change their names and put the correct colors
+
+```{r}
+Idents(subset.seurat) <- "seurat_clusters"
+new.cluster.name <- c("Prim. Streak", "Ant. Prim. Streak", "Pluripotent")
+names(new.cluster.name) <- levels(subset.seurat$seurat_clusters)
+subset.seurat <- RenameIdents(subset.seurat, new.cluster.name)
+subset.seurat[["Fate"]] <- Idents(subset.seurat)
+if (any(! unique(as.character(subset.seurat$Fate)) %in% unlist(list.Fate.level))) {
+  stop("The following Fate are not in list.Fate.level: ",
+       paste(unique(as.character(subset.seurat$Fate))[! unique(as.character(subset.seurat$Fate)) %in% unlist(list.Fate.level)],
+             collapse = ", "), "\n")
+} else {
+  cat("all good on nomenclature")
+  subset.seurat[["FateColor"]] <- my.fate.colors[as.character(subset.seurat$Fate)]
+  subset.seurat$Fate <- factor(subset.seurat$Fate,levels =
+                                 names(my.fate.colors))
+
+}
+```
+
+## Here, we visualize the data colored by fate
+
+```{r}
+# Initiate the parameters which will be used for the plots
+params <- list(nameRDS = paste0("only72h_from", nameRDS), Col.featurePlot = Col.featurePlot)
+
+params$current.fig <- SwitchFigure(Fig = "SX", Panel = "DimPlot.72h.WT")
+g <- DimPlotMayran("subset.seurat", params,
+                   group.by = "Fate",
+                   cols = alpha(my.fate.colors, 1))
+print(g)
+```
+
+## Now we display the expression of desired genes
+
+```{r}
+params$current.fig <- SwitchFigure(Fig = "1", Panel = "FeaturePlot.72h.WT")
+genelist <- c("Mesp1", "Mixl1")
+for(gene in genelist){
+  g <- featurePlotMayran("subset.seurat", gene, params)
+  print(g)
+}
+
+params$current.fig <- SwitchFigure(Fig = "S2", Panel = "FeaturePlot.72h.WT")
+
+genelist <- c("Eomes", "Lhx1", "Otx2", "Sox17")
+for(gene in genelist){
+  g <- featurePlotMayran("subset.seurat", gene, params)
+  print(g)
+}
+
+params$current.fig <- SwitchFigure(Fig = "S3", Panel = "FeaturePlot.72h.WT")
+
+genelist <- c("Frzb", "Snai1", "Fst", "Pou5f1")
+for(gene in genelist){
+  g <- featurePlotMayran("subset.seurat", gene, params)
+  print(g)
+}
+```
+
+# Get correlation hints
+
+## Here we will extract the expression of some genes of PS and APS to infer the correlation between genes of this program in single cell
+
+```{r}
+subset.seurat <- add.level(subset.seurat, "Lhx1")
+subset.seurat <- add.level(subset.seurat, "Mesp1")
+params$current.fig <- SwitchFigure(Fig = "S2", Panel = "VlnPlot.Split.level.72hWT")
+
+g <- VlnPlot(subset.seurat, features = c("Mesp1", "Mixl1", "Eomes",
+                                         "Lhx1", "Gsc", "Otx2",
+                                         "Gata6", "Snai1", "Cdh2",
+                                         "T", "Pou5f1", "Cdh1"),
+             group.by = "Mesp1_level", cols = grey.colors(start = 0.9, end = 0.3, n = 4), pt.size = 0, ncol = 3)
+print(g)
+savePngPdf(g, params$current.fig,
+           paste0(nameRDS, ".VlnPlot.", "Mesp1_level.", "sc.correl"),
+           width = 8, height = 12)
+g <- VlnPlot(subset.seurat, features = c("Lhx1", "Mixl1", "Eomes",
+                                         "Mesp1", "Gsc", "Otx2",
+                                         "Gata6", "Snai1", "Cdh2",
+                                         "T", "Pou5f1", "Cdh1"),
+             group.by = "Lhx1_level", cols = grey.colors(start = 0.9, end = 0.3, n = 4), pt.size = 0, ncol = 3)
+print(g)
+savePngPdf(g, params$current.fig,
+           paste0(nameRDS,".VlnPlot.", "Lhx1_level.", "sc.correl"),
+           width = 8, height = 12)
+
+```
+
+# Run RNA velocity
+
+## Now let's run some RNA velocity analysis (if not already computed)
+
+```{r}
+if (!file.exists(file.path(RDSfolder, "analyzed", nameRDS.subset))){
+  # The barcodes in the loom file are like: "72h_WT_rep1:AACCACAAGCAATTCCx" "72h_WT_rep1:AACAACCAGTACTCGTx" "72h_WT_rep1:AACAAGAAGTGGTTAAx"
+  # While in Seurat they are like: "72h.WT.rep1_AAACCCAAGCTGGCCT" "72h.WT.rep1_AAACCCACATGACTCA" "72h.WT.rep1_AAACGAAAGCCACAAG"
+  # Generate a named vector for conversion:
+  subset.seurat.barcodes <- sapply(strsplit(colnames(subset.seurat), "_"), tail, 1)
+  subset.seurat.barcodes.conversion <- paste0(subset.seurat$RDS, "_", subset.seurat.barcodes)
+  names(subset.seurat.barcodes.conversion) <- paste0(gsub(pattern = "\\.", replacement = "_", x = subset.seurat$orig.ident ), ":", subset.seurat.barcodes, "x")
+  # Make vector with loom paths
+  loom.files <- file.path(LoomFolder, paste0(unique(subset.seurat$Directory), ".loom"))
+  names(loom.files) <- unique(subset.seurat$Directory)
+  # Read them
+  matrices <- lapply(loom.files, ReadVelocity)
+  # Convert to Seurat to more easily rename cells and genes and transfer assays:
+  seurats <- lapply(matrices, as.Seurat)
+  # Combine Seurat objects keeping the same order:
+  Combined.seurat.velocity <- merge(seurats[[as.character(unique(subset.seurat$Directory))[1]]],
+                                    y = subsetByNamesOrIndices(seurats,
+                                                               as.character(unique(subset.seurat$Directory))[2:length(as.character(unique(subset.seurat$Directory)))]),
+                                    project = "aggregate.velocity")
+  # Restrict to cells which are on the subset.seurat object:
+  Combined.seurat.velocity <- subset(Combined.seurat.velocity, cells = names(subset.seurat.barcodes.conversion))
+  # Rename cells
+  Combined.seurat.velocity <- RenameCells(Combined.seurat.velocity, new.names = unname(subset.seurat.barcodes.conversion[colnames(Combined.seurat.velocity)]))
+  # Transfer assays
+  subset.seurat[["spliced"]] <- Combined.seurat.velocity[["spliced"]]
+  subset.seurat[["unspliced"]] <- Combined.seurat.velocity[["unspliced"]]
+  # Run velocity
+  subset.seurat <- RunVelocity(subset.seurat,
+                               spliced.average = 0.2, unspliced.average = 0.02,
+                               deltaT = 1, kCells = 20, fit.quantile = 0.02,
+                               group.by = "Fate")
+  # Save RDS
+  dir.create(file.path(RDSfolder, "analyzed"), showWarnings = FALSE, recursive = TRUE)
+  saveRDS(subset.seurat, file.path(RDSfolder, "analyzed", nameRDS.subset))
+}
+```
+
+## Display the velocity on UMAP
+
+### Compute the velocity on UMAP
+
+```{r}
+if(!file.exists(file.path(RDSfolder, "analyzed", "velocity.on.embedding.72h.RDS"))){
+  emb <- Embeddings(subset.seurat, reduction = "umap")
+  
+  velocity.on.embedding <- show.velocity.on.embedding.cor(emb, subset.seurat@tools[["RunVelocity"]],
+                                                          n = 300, scale='sqrt',
+                                                          cell.colors = ac(subset.seurat$FateColor,
+                                                                           alpha=0.5),cex=0.8,arrow.scale = 5,
+                                                          show.grid.flow=TRUE,
+                                                          min.grid.cell.mass = 0.5, grid.n=40, arrow.lwd = 1,
+                                                          do.par = F, cell.border.alpha = 0, return.details = T,
+                                                          n.cores = 3)
+  saveRDS(velocity.on.embedding, file = file.path(RDSfolder, "analyzed", "velocity.on.embedding.72h.RDS"))
+} else{
+  velocity.on.embedding <- readRDS(file.path(RDSfolder, "analyzed", "velocity.on.embedding.72h.RDS"))
+}
+```
+
+### Plot it
+
+```{r}
+# We use ggplot2 to display the arrows as they are more customizable
+params$current.fig <- SwitchFigure(Fig = "2", Panel = "RNA.Velocity")
+
+g <- DimPlot(subset.seurat, cols = my.fate.colors, label = F, pt.size = 1) +
+  geom_segment(data = as.data.frame(velocity.on.embedding$garrows),
+               aes(x = x0, y = y0, xend = x1, yend = y1),
+               arrow = arrow(length = unit(1, "mm"), type = "open", angle = 20), alpha = 0.5) +
+  NoLegend() + NoAxes()
+print(g)
+
+savePngPdf(g, params$current.fig,
+           paste0(nameRDS, ".RNA.velocity.72h"),
+           width = 6, height = 4)
+```
+
+### Show gene specific velocity
+
+```{r}
+params$current.fig <- SwitchFigure(Fig = "2", Panel = "Gene.Velocity.72h")
+gene.list <- c("Cdh1", "Cdh2")
+
+gene.list.intersected <- intersect(gene.list, rownames(velocity.on.embedding[["vel"]]))
+
+if (length(gene.list) != length(gene.list.intersected)) {
+  print(paste("the following genes do not have velocity:", paste(setdiff(gene.list, rownames(velocity.on.embedding[["vel"]])), collapse = ", ")))
+}
+
+for(gene in gene.list.intersected){
+  g <- ggplot(as.data.frame(Embeddings(object = subset.seurat,reduction = "umap")), aes(x = UMAP_1, y = UMAP_2)) + 
+    geom_point(aes(colour = velocity.on.embedding[["vel"]][gene,])) +
+    scale_colour_gradientn(paste(gene, "velocity"),
+                           colors = RColorBrewer::brewer.pal(n = 11, name = "RdBu")) +
+    theme_minimal(base_line_size = 0.1) +
+    NoAxes()
+  print(g)
+  savePngPdf(g, params$current.fig,
+             paste0(gene, ".specific.Velocity",nameRDS,".72h"),
+             width = 8, height = 4)
+}
+
+params$current.fig <- SwitchFigure(Fig = "S3", Panel = "Gene.Velocity.72h")
+gene.list <- c("Pou5f1", "Fst")
+
+gene.list.intersected <- intersect(gene.list, rownames(velocity.on.embedding[["vel"]]))
+
+if (length(gene.list) != length(gene.list.intersected)) {
+  print(paste("the following genes do not have velocity:", paste(setdiff(gene.list, rownames(velocity.on.embedding[["vel"]])), collapse = ", ")))
+}
+
+for(gene in gene.list.intersected){
+  g <- ggplot(as.data.frame(Embeddings(object = subset.seurat,reduction = "umap")), aes(x = UMAP_1, y = UMAP_2)) + 
+    geom_point(aes(colour = velocity.on.embedding[["vel"]][gene,])) +
+    scale_colour_gradientn(paste(gene, "velocity"),
+                           colors = RColorBrewer::brewer.pal(n = 11, name = "RdBu")) +
+    theme_minimal(base_line_size = 0.1) +
+    NoAxes()
+  print(g)
+  savePngPdf(g, params$current.fig,
+             paste0(gene, ".specific.Velocity",nameRDS,".72h"),
+             width = 8, height = 4)
+}
+```
