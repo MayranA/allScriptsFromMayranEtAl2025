@@ -1,4 +1,4 @@
-# tempAllScriptsFromMayranEtAl2023
+# AllScriptsFromMayranEtAl2023
 
 All scripts to reproduce figures in Mayran et al. 2023 from raw data.
 
