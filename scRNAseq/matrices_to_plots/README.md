@@ -4,11 +4,11 @@
 
 The scripts have been launched on a RStudio server.
 
-The session information is available [here](./sessionInfo.txt).
+The session information is available [here](./sessionInfo_WT.txt).
 
 ## Pipeline
 
-All samples have been registered into a [csv file](./metadata.sample.galaxy.csv).
+All samples have been registered into a [csv file](./metadata.csv).
 
 Once matrices have been generated in galaxy they were downloaded and organized like this:
 

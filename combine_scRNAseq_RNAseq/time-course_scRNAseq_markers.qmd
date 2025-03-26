@@ -1,0 +1,165 @@
+---
+title: "Get bulk RNA-seq expression of scRNAseq cluster markers"
+author: "Alexandre Mayran"
+format: html
+editor: source
+---
+
+```{r, setup, include=FALSE}
+# choose working directory
+wd <- "/home/ldelisle/Documents/mygit/allScriptsFromMayranEtAl2025"
+knitr::opts_knit$set(root.dir = wd)
+```
+
+# Analysing temporal dynamic of gastruloid cell diversification
+
+## Parameters
+
+```{r}
+samplesPlan <- "RNAseq/samples.plan.time.course.txt"
+tableWithNormalizedExpression <- "output.files/RNAseq/mergedTables/time_course/AllCufflinks_Simplified.txt.gz"
+File.gene.rank <- "output.files/scRNAseq/matrices_to_plots/WT/all.markers.WT.csv"
+top.gene <- 10
+scRNAseqParam.file.path <- "scRNAseq/matrices_to_plots/scRNAseqWTparams.R"
+
+color.cells <- colorRampPalette(c(
+    "#053061",
+    "#6bacd0",
+    "#f7f7f7",
+    "#e58268",
+    "#67001f"
+))(103)
+
+output.dir <- "output.files/combine_scRNAseq_RNAseq/time-course_48-72h_markers"
+```
+
+## Dependencies
+
+```{r}
+# Install required packages
+if (!"devtools" %in% installed.packages()) {
+    install.packages("devtools", repos = "https://stat.ethz.ch/CRAN/")
+}
+if (!"usefulLDfunctions" %in% installed.packages()) {
+    devtools::install_github("lldelisle/usefulLDfunctions")
+}
+library(usefulLDfunctions)
+safelyLoadAPackageInCRANorBioconductor("dplyr")
+safelyLoadAPackageInCRANorBioconductor("pheatmap")
+safelyLoadAPackageInCRANorBioconductor("scales")
+safelyLoadAPackageInCRANorBioconductor("reshape2")
+safelyLoadAPackageInCRANorBioconductor("ggplot2")
+safelyLoadAPackageInCRANorBioconductor("ggpubr")
+
+source(scRNAseqParam.file.path)
+```
+
+## Process inputs
+
+```{r}
+## Process samples plan
+samples.plan.df <- read.delim(samplesPlan)
+rownames(samples.plan.df) <- samples.plan.df$sample
+samples.plan.df$Time <- sapply(strsplit(samples.plan.df$sample, "_"), head, n = 1)
+samples.plan.df$Time <- factor(samples.plan.df$Time, levels = paste0(sort(as.numeric(gsub("h", "", unique(samples.plan.df$Time)))), "h"))
+samples.plan.df$Replicate <- sapply(strsplit(samples.plan.df$sample, "_"), tail, n = 1)
+samples.plan.df$`Fate bias` <- 
+    ifelse(samples.plan.df$Replicate == "rep1",
+           "Neuronal",
+           "Mesodermal")
+
+annot <- samples.plan.df[, c("Time", "Batch", "Fate bias")]
+# to add color to time:
+fixedColors <- list(
+    Time = colorRampPalette(c("yellow", "orange", "red", "darkred"))(length(unique(samples.plan.df$Time))),
+    Batch = c('batch1' = '#AEBBD5', 'batch2' = '#2B467D', 'batch3' = '#BC9B83', 'batch4' = '#5F2C09'),
+    `Fate bias` = c('Neuronal' = '#002060', 'Mesodermal' = '#5F2C09'))
+names(fixedColors$Time) <- sort(unique(samples.plan.df$Time))
+
+## Process FPKM file
+expressionDF <- read.delim(tableWithNormalizedExpression)
+colnames(expressionDF) <- gsub("^FPKM_", "", colnames(expressionDF))
+data <- expressionDF[, samples.plan.df$sample]
+sumperline <- apply(data, 1, sum)
+nonZdata <- data[sumperline != 0, ]
+gene_short_names <- expressionDF$gene_short_name[sumperline != 0]
+ldata <- log2(nonZdata + 1)
+
+## Process markers
+# we select the desired clusters first
+gene.rank <- read.csv(File.gene.rank)
+topn.time <- as.data.frame(gene.rank %>% group_by(cluster) %>% top_n(n = top.gene, wt = avg_log2FC))
+cluster.name <- unique(gene.rank$cluster)
+cluster.order <- cluster.name[c(1:8, 13:16)]
+
+topn.time <- subset(topn.time, subset = topn.time$cluster %in% cluster.order)
+topn.time$cluster <- factor(topn.time$cluster, levels = cluster.order)
+topn.time <- topn.time[order(topn.time$cluster), ]
+
+rownames(topn.time) <- make.unique(topn.time$gene)
+
+## Create output.dir
+dir.create(output.dir, showWarnings = FALSE, recursive = TRUE)
+```
+
+## Here we display the expression of markers from scRNAseq on our time resolved transcriptomic Atlas
+
+We use a normalization by the max value
+
+```{r, max_norm}
+annot.genes <- subset(gene.rank, cluster %in% cluster.order & gene %in% gene_short_names)
+# Get only the top
+annot.genes <- annot.genes %>% group_by(cluster) %>% top_n(n = 20, wt = avg_log2FC) %>% as.data.frame()
+mat <- ldata[match(annot.genes$gene, gene_short_names), ]
+rownames(mat) <- annot.genes$X
+sub.df.max <- apply(mat, 1, max)
+annot.genes$max.value <- sub.df.max
+sub.df.norm <- mat / sub.df.max
+df.gg2 <- melt(as.matrix(sub.df.norm))
+df.gg2 <- merge(df.gg2, samples.plan.df[, c("sample", "Time", "Fate bias")],
+    by.x = "Var2", by.y = "sample"
+)
+df.gg2$exp.time <- as.numeric(gsub("h$", "", df.gg2$Time))
+df.gg2$cluster <- annot.genes[match(df.gg2$Var1, annot.genes$X), "cluster"]
+```
+
+Average profiles
+
+```{r, averages}
+df.gg2.summary <- df.gg2 %>%
+    group_by(cluster, exp.time) %>%
+    summarize(averageScaledExpression = mean(value))
+
+df.gg2.summary.FateBias <- df.gg2 %>%
+    group_by(cluster, `Fate bias`, exp.time) %>%
+    summarize(averageScaledExpression = mean(value))
+```
+
+Plot a heatmap with averages
+
+```{r}
+pal <- c("#FEB24C",	"#FD8D3C",	"#FC4E2A",	"#E31A1C",	"#BD0026",	"#800026")
+pal <- c("#D3D3D3", pal)
+my.chosen.clusters.2 <- c("ESCs", "Pluripotent", "Epiblast", "Prim. Streak", "Ant. Prim. Streak", "Caudal Mes", "Mixed Mes.","Post. PSM", "Ant. PSM", "Early NMP", "Late NMP", "Neural Tube")
+df.gg2.summary.2 <- subset(df.gg2.summary, cluster %in% my.chosen.clusters.2)
+df.gg2.summary.2$cluster <- factor(df.gg2.summary.2$cluster, levels = rev(my.chosen.clusters.2))
+ggplot(df.gg2.summary.2, aes(x = as.factor(exp.time), y = cluster, fill = averageScaledExpression)) +
+    geom_tile() +
+    scale_fill_gradientn(colours = pal) +
+    theme_minimal()
+ggsave(file.path(output.dir, paste0("markers_nmax_summary_heatmap.pdf")), width = 5, height = 5)
+df.gg2.summary.FateBias.2 <- subset(df.gg2.summary.FateBias, cluster %in% my.chosen.clusters.2)
+df.gg2.summary.FateBias.2$cluster <- factor(df.gg2.summary.FateBias.2$cluster, levels = rev(my.chosen.clusters.2))
+ggplot(df.gg2.summary.FateBias.2, aes(x = as.factor(exp.time), y = cluster, fill = averageScaledExpression)) +
+    geom_tile() +
+    scale_fill_gradientn(colours = pal) +
+    facet_grid(. ~ `Fate bias`) +
+    theme_minimal()
+ggsave(file.path(output.dir, paste0("markers_nmax_summary_fatebias_heatmap.pdf")), width = 8, height = 5)
+```
+
+Write sessionInfo to file:
+
+```{r}
+writeLines(capture.output(sessionInfo()), "combine_scRNAseq_RNAseq/sessionInfo_corr_time-course.txt")
+```

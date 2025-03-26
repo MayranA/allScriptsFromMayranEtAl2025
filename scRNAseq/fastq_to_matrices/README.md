@@ -13,7 +13,7 @@ The workflows used have been exported [here for regular 10X](./scRNA-seq_preproc
 
 - fastqPE collection GEX (for both workflows): fastqs are available on GEO/SRA.
 - reference genome (for both workflows): `mm10` (from UCSC)
-- gtf (for both workflows): TODO (ZENODO)
+- gtf (for both workflows): available on [zenodo](https://doi.org/10.5281/zenodo.10079673).
 - cellranger_barcodes_3M-february-2018.txt (for both workflows): downloaded from [zenodo](https://zenodo.org/record/3457880/files/3M-february-2018.txt.gz).
 - fastqPE collection CMO (only CellPlex): fastqs are available on GEO/SRA
 - cmo_10X_seq.txt (only CellPlex): available [here](./cmo_10X_seq.txt)

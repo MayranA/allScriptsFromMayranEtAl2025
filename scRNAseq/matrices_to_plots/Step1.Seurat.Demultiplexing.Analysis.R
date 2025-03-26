@@ -14,7 +14,7 @@ safelyLoadAPackageInCRANorBioconductor("ggplot2")
 # introduce variable that will be used
 s.genes <- cc.genes.updated.2019$s.genes
 g2m.genes <- cc.genes.updated.2019$g2m.genes
-wd <- "/data/home/mayran/tempAllScriptsFromMayranEtAl2023"
+wd <- "/data/home/mayran/allScriptsFromMayranEtAl2025"
 # all files are relative to wd
 # rds files will be put in a RDS folder in the working directory
 # rds are only created once, if pipeline changes, delete manually all rds
@@ -172,7 +172,7 @@ for (mydirectory in all.directory) {
       cat("done\n")
       classification2 <- dmmClassify(dmm2)
       # Save the demuxmix result to tsv
-      write.table(classification2, file = file.path(raw.files, "CMO", paste0(mydirectory, "classification2.tsv")))
+      write.table(classification2, file = file.path(raw.files, "CMO", paste0(mydirectory, "_classification2.tsv")))
 
       # add classifications on seurat object
       seurat.object$CMOtype <- classification2[colnames(seurat.object), "Type"]

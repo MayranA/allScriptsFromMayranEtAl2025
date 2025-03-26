@@ -9,11 +9,16 @@ library(usefulLDfunctions)
 safelyLoadAPackageInCRANorBioconductor("dplyr")
 safelyLoadAPackageInCRANorBioconductor("Seurat")
 safelyLoadAPackageInCRANorBioconductor("ggplot2")
-safelyLoadAPackageInCRANorBioconductor("velocyto.R")
+safelyLoadAPackageInCRANorBioconductor("ggpubr")
+if (!"velocyto.R" %in% installed.packages()) {
+  devtools::install_github("velocyto-team/velocyto.R", upgrade = "never")
+}
+library("velocyto.R")
+
 if (!"SeuratWrappers" %in% installed.packages()) {
   remotes::install_github('satijalab/seurat-wrappers', ref = 'b6d519b69e8a6364f7275d116aa8b0c1ee783364', upgrade = "never")
 }
-safelyLoadAPackageInCRANorBioconductor("SeuratWrappers")
+library("SeuratWrappers")
 
 # now we define our custom made functions
 

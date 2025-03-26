@@ -1,0 +1,80 @@
+---
+title: "Plot gastruloid length as function of mosaicism"
+format: html
+editor: source
+---
+
+# Prepare everything
+
+Load packages
+
+```{r}
+library(usefulLDfunctions)
+safelyLoadAPackageInCRANorBioconductor("ggplot2")
+safelyLoadAPackageInCRANorBioconductor("dplyr")
+```
+
+Define variables
+
+```{r}
+# Path with the csv
+length_file <- "Cdh2.length.mosaic.csv"
+
+path_for_plots <- file.path("..", "..", "output.files", "imaging", "visualisation")
+my.theme <- theme_classic() +
+    theme(
+        panel.background = element_blank(),
+        plot.background = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.major.x = element_line(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank()
+    )
+```
+
+Create output directory
+
+```{r}
+if (! dir.exists(path_for_plots)) {
+  dir.create(path_for_plots, recursive = TRUE)
+}
+```
+
+# Get Data
+
+Get all data in a data frame
+
+```{r}
+working_df <- read.csv(length_file, check.names = FALSE)
+# working_df$Proportion.Cdh2KO <- factor(working_df$Proportion.Cdh2KO)
+```
+
+# Compute statistics
+
+```{r}
+all.lm <- lm(length ~ Proportion.Cdh2KO, data = working_df)
+summary_df <- working_df %>%
+    group_by(Proportion.Cdh2KO) %>%
+    summarize(length = mean(length))
+summary.lm <- lm(length ~ Proportion.Cdh2KO, data = summary_df)
+```
+
+# Plot
+
+```{r}
+n_fun <- function(x) {
+    return(data.frame(y = 500, label = paste0("n = ", length(x))))
+}
+set.seed(1)
+g <- ggplot(working_df, aes(x = Proportion.Cdh2KO, y = length)) +
+    geom_jitter(width = 0.02, height = 0, col = "grey", alpha = 0.5) +
+    geom_smooth(method = lm, se = FALSE, col = "black", linewidth = 0.3) +
+    geom_point(data = summary_df, color = "black", alpha = 0.5, size = 4) +
+    scale_x_continuous(breaks = unique(working_df$Proportion.Cdh2KO), labels = sapply(unique(working_df$Proportion.Cdh2KO), as.character)) +
+    annotate("text", label = paste0("R^2*' = ", round(summary(summary.lm)$r.squared, 2), "'"), color = "black", x = 0, y = 2500, hjust = 0, vjust = 0, parse = TRUE) +
+    annotate("text", label = paste0("R^2*' = ", round(summary(all.lm)$r.squared, 2), "'"), color = "grey", x = 0, y = 2500, hjust = 0, vjust = 1, parse = TRUE) +
+    ylab(expression("Length (" * mu * "m)")) +
+    stat_summary(fun.data = n_fun, geom = "text", size = 3) +
+    my.theme
+ggsave(file.path(path_for_plots, "cdh2_length.pdf"), g, width = 6, height = 4)
+```

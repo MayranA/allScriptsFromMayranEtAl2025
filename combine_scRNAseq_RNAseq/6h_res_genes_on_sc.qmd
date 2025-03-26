@@ -1,0 +1,97 @@
+---
+title: "Module score"
+author: "Alexandre Mayran"
+format: html
+editor: source
+---
+
+```{r, setup, include=FALSE}
+# choose working directory
+wd <- file.path(Sys.getenv("HOME"), "allScriptsFromMayranEtAl2025")
+knitr::opts_knit$set(root.dir = wd)
+```
+
+# Get sc object and genes up-regulated and down-regulated genes in Snai1-/-
+
+Here, we load all the required packages
+
+```{r}
+#| label: Loading packages and variable
+scRNAseqFunctions.file.path <- "scRNAseq/matrices_to_plots/scRNAseqFunctions.R"
+scRNAseqParam.file.path <- "scRNAseq/matrices_to_plots/scRNAseqWTparams.R"
+source(scRNAseqFunctions.file.path)
+source(scRNAseqParam.file.path)
+```
+
+## We define the parameters for display
+
+```{r}
+# Here you need to define the name of the folder where the RDS is
+RDSfolder <- "../mountDuboule/Alex/R/RDS_new"
+# This output.directory will be used for plots
+output.directory <- "output.files/combine_scRNAseq_RNAseq/6hres_genes_on_sc/"
+# Here put name of RDS as given in step 2
+nameRDS <- "combined.WT_ad2bdca4.RDS"
+# File with filtered genes
+filtered.table.file <-"output.files/RNAseq/time-course/clustering_15_cs_top2000VariantGenes.txt"
+# Check the RDS analyzed file exists:
+if(file.exists(file.path(RDSfolder, "analyzed", paste0("analyzed.", nameRDS)))){
+  print(paste0("analyzed.", nameRDS," RDS file found, you can proceed"))
+} else{
+  stop(paste0("analyzed.", nameRDS," RDS file not found, check the location or run Step3"))
+}
+# Initiate the parameters which will be used for the plots
+params <- list(current.fig = paste0(output.directory, "Fig.1/"), nameRDS = nameRDS, Col.featurePlot = Col.featurePlot)
+```
+
+## Load Seurat object
+
+```{r}
+combined.seurat <- readRDS(file.path(RDSfolder, "analyzed", paste0("analyzed.", nameRDS)))
+```
+
+## Get clustered genes
+
+```{r}
+filteredSimplifiedTable <- read.delim(filtered.table.file, check.names = FALSE)
+cluster.number <- "relabelled_cluster"
+gene.per.cluster <- split(filteredSimplifiedTable$gene_name,
+                          filteredSimplifiedTable[,cluster.number])
+
+if (!"GenesScore.6h15" %in% colnames(combined.seurat[[]])) {
+  combined.seurat <- AddModuleScore(combined.seurat,
+                                    features = gene.per.cluster, name = "GenesScore.6h",
+                                    ctrl = min(sapply(gene.per.cluster, length)))
+  # Warning: The following features are not present in the object: Rsc1a1, not searching for symbol synonymsWarning: The following features are not present in the object: Gm42742, not searching for symbol synonymsWarning: The following features are not present in the object: Yy2, not searching for symbol synonyms
+  storeNewRDS <- TRUE
+} else {
+  storeNewRDS <- FALSE
+}
+params$current.fig <- SwitchFigure(Fig = "6h.res", Panel = "score")
+my.selected.clusters <- c("a", "b", "c", "j", "f", "k")
+my.selected.indices <- sapply(my.selected.clusters, function(l){which(names(gene.per.cluster) == l)})
+glist <- lapply(my.selected.indices, function(cluster.index){
+  featurePlotMayran("combined.seurat", paste0("GenesScore.6h",cluster.index) , params, by.rows = F, width = 8, height = 5, min.cutoff = 0)
+})
+ggarrange(plotlist = glist)
+# ggsave(file.path(params$current.fig, "all.scores.pdf"), ggarrange(plotlist = glist),
+#        width = 18, height = 10)
+ggsave(file.path(params$current.fig,
+                 paste0(cluster.number,"_selected.scores.png")),
+       ggarrange(plotlist = glist),
+       width = 18, height = 8)
+
+```
+
+## Finally we save the fully analyzed RDS
+
+```{r}
+if(storeNewRDS){
+  print("Saved analysed RDS does not contain GenesScore.6h15, will save it now..")
+  saveRDS(combined.seurat,file.path(RDSfolder, "analyzed", paste0("analyzed.",nameRDS)))
+  print("Done")
+} else{
+  print("Saved analysed RDS already contains GenesScore.6h15, visualization complete")
+}
+
+```

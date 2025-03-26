@@ -7,7 +7,7 @@ author : Alexandre Mayran
 
 ```{r, setup, include=FALSE}
 # choose working directory
-wd <- "/data/home/ldelisle/tempAllScriptsFromMayranEtAl2023"
+wd <- "/data/home/ldelisle/allScriptsFromMayranEtAl2025"
 knitr::opts_knit$set(root.dir = wd)
 ```
 

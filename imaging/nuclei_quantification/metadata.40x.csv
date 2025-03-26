@@ -1,0 +1,51 @@
+﻿image.id,file,BaseImage,Channel1,Channel2,Channel4,Stage
+1,IF2_WT_72h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 2.tif__Results.csv,IF2_WT_72h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 2.tif,DAPI,SNAI1,SOX2,72
+2,IF2_WT_72h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 3.tif__Results.csv,IF2_WT_72h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 3.tif,DAPI,SNAI1,SOX2,72
+3,IF2_WT_72h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 8.tif__Results.csv,IF2_WT_72h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 8.tif,DAPI,SNAI1,SOX2,72
+4,IF2_WT_72h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 9.tif__Results.csv,IF2_WT_72h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 9.tif,DAPI,SNAI1,SOX2,72
+5,IF2_WT_72h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 5_Merged-1.tif__Results.csv,IF2_WT_72h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 5_Merged-1.tif,DAPI,SNAI1,SOX2,72
+6,IF2_WT_72h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 5_Merged-2.tif__Results.csv,IF2_WT_72h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 5_Merged-2.tif,DAPI,SNAI1,SOX2,72
+7,IF2_WT_72h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 5_Merged-3.tif__Results.csv,IF2_WT_72h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 5_Merged-3.tif,DAPI,SNAI1,SOX2,72
+8,IF2_WT_72h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 5_Merged-4.tif__Results.csv,IF2_WT_72h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 5_Merged-4.tif,DAPI,SNAI1,SOX2,72
+9,IF2_WT_78h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 10.tif__Results.csv,IF2_WT_78h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 10.tif,DAPI,SNAI1,SOX2,78
+10,IF2_WT_78h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 12.tif__Results.csv,IF2_WT_78h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 12.tif,DAPI,SNAI1,SOX2,78
+11,IF2_WT_78h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 13.tif__Results.csv,IF2_WT_78h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 13.tif,DAPI,SNAI1,SOX2,78
+12,IF2_WT_78h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 14.tif__Results.csv,IF2_WT_78h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 14.tif,DAPI,SNAI1,SOX2,78
+13,IF2_WT_78h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 15.tif__Results.csv,IF2_WT_78h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 15.tif,DAPI,SNAI1,SOX2,78
+14,IF2_WT_96h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 1.tif__Results.csv,IF2_WT_96h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 1.tif,DAPI,SNAI1,SOX2,96
+15,IF2_WT_96h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 4.tif__Results.csv,IF2_WT_96h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 4.tif,DAPI,SNAI1,SOX2,96
+16,IF2_WT_96h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 5.tif__Results.csv,IF2_WT_96h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 5.tif,DAPI,SNAI1,SOX2,96
+17,IF2_WT_96h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 6.tif__Results.csv,IF2_WT_96h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 6.tif,DAPI,SNAI1,SOX2,96
+18,IF2_WT_96h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 7.tif__Results.csv,IF2_WT_96h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 7.tif,DAPI,SNAI1,SOX2,96
+19,IF2_WT_102h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 11.tif__Results.csv,IF2_WT_102h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Position 11.tif,DAPI,SNAI1,SOX2,102
+20,IF2_WT_102h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 7_Merged.tif__Results.csv,IF2_WT_102h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 7_Merged.tif,DAPI,SNAI1,SOX2,102
+21,IF2_WT_102h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 8_Merged.tif__Results.csv,IF2_WT_102h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 8_Merged.tif,DAPI,SNAI1,SOX2,102
+22,IF2_WT_102h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 10_Merged.tif__Results.csv,IF2_WT_102h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 10_Merged.tif,DAPI,SNAI1,SOX2,102
+23,IF2_WT_120h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 1_Merged.tif__Results.csv,IF2_WT_120h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 1_Merged.tif,DAPI,SNAI1,SOX2,120
+24,IF2_WT_120h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 2_Merged.tif__Results.csv,IF2_WT_120h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 2_Merged.tif,DAPI,SNAI1,SOX2,120
+25,IF2_WT_120h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 3_Merged.tif__Results.csv,IF2_WT_120h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 3_Merged.tif,DAPI,SNAI1,SOX2,120
+26,IF2_WT_120h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 4_Merged.tif__Results.csv,IF2_WT_120h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 4_Merged.tif,DAPI,SNAI1,SOX2,120
+27,IF2_WT_120h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 6_Merged.tif__Results.csv,IF2_WT_120h_Snai1_Rab_ECAD_Sox2_FCS_01Triton_2024_08_14.lif - Region 6_Merged.tif,DAPI,SNAI1,SOX2,120
+28,IF1_rescan_WT_72h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_16.lif - Position 3.tif__Results.csv,IF1_rescan_WT_72h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_16.lif - Position 3.tif,DAPI,SNAI1,TBX6,72
+29,IF1_rescan_WT_72h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_16.lif - Position 7.tif__Results.csv,IF1_rescan_WT_72h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_16.lif - Position 7.tif,DAPI,SNAI1,TBX6,72
+30,IF1_rescan_WT_72h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_16.lif - Position 8.tif__Results.csv,IF1_rescan_WT_72h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_16.lif - Position 8.tif,DAPI,SNAI1,TBX6,72
+31,IF1_rescan_WT_72h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_16.lif - Position 10.tif__Results.csv,IF1_rescan_WT_72h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_16.lif - Position 10.tif,DAPI,SNAI1,TBX6,72
+32,IF1_rescan_WT_72h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_16.lif - Position 2.tif__Results.csv,IF1_rescan_WT_72h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_16.lif - Position 2.tif,DAPI,SNAI1,TBX6,72
+33,IF1_rescan_WT_78h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Image 1.tif__Results.csv,IF1_rescan_WT_78h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Image 1.tif,DAPI,SNAI1,TBX6,78
+34,IF1_rescan_WT_78h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Position 1.tif__Results.csv,IF1_rescan_WT_78h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Position 1.tif,DAPI,SNAI1,TBX6,78
+35,IF1_rescan_WT_78h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Position 4.tif__Results.csv,IF1_rescan_WT_78h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Position 4.tif,DAPI,SNAI1,TBX6,78
+36,IF1_rescan_WT_78h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Position 5.tif__Results.csv,IF1_rescan_WT_78h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Position 5.tif,DAPI,SNAI1,TBX6,78
+37,IF1_rescan_WT_78h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Position 6.tif__Results.csv,IF1_rescan_WT_78h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Position 6.tif,DAPI,SNAI1,TBX6,78
+38,IF1_rescan_WT_96h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 1_Merging_001.tif__Results.csv,IF1_rescan_WT_96h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 1_Merging_001.tif,DAPI,SNAI1,TBX6,96
+39,IF1_rescan_WT_96h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 3_Merging_001.tif__Results.csv,IF1_rescan_WT_96h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 3_Merging_001.tif,DAPI,SNAI1,TBX6,96
+40,IF1_rescan_WT_96h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 4_Merging_001.tif__Results.csv,IF1_rescan_WT_96h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 4_Merging_001.tif,DAPI,SNAI1,TBX6,96
+41,IF1_rescan_WT_96h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 5_Merging_001.tif__Results.csv,IF1_rescan_WT_96h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 5_Merging_001.tif,DAPI,SNAI1,TBX6,96
+42,IF1_rescan_WT_102h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 8_Merging_001.tif__Results.csv,IF1_rescan_WT_102h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 8_Merging_001.tif,DAPI,SNAI1,TBX6,102
+43,IF1_rescan_WT_102h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 10_Merging_001.tif__Results.csv,IF1_rescan_WT_102h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 10_Merging_001.tif,DAPI,SNAI1,TBX6,102
+44,IF1_rescan_WT_102h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 11_Merging_001.tif__Results.csv,IF1_rescan_WT_102h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 11_Merging_001.tif,DAPI,SNAI1,TBX6,102
+45,IF1_rescan_WT_102h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 12_Merging_001.tif__Results.csv,IF1_rescan_WT_102h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 12_Merging_001.tif,DAPI,SNAI1,TBX6,102
+46,IF1_rescan_WT_102h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 14_Merging_001.tif__Results.csv,IF1_rescan_WT_102h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 14_Merging_001.tif,DAPI,SNAI1,TBX6,102
+47,IF1_rescan_WT_120h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 2_Merging_001.tif__Results.csv,IF1_rescan_WT_120h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 2_Merging_001.tif,DAPI,SNAI1,TBX6,120
+48,IF1_rescan_WT_120h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 6_Merging_001.tif__Results.csv,IF1_rescan_WT_120h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 6_Merging_001.tif,DAPI,SNAI1,TBX6,120
+49,IF1_rescan_WT_120h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 7_Merging_001.tif__Results.csv,IF1_rescan_WT_120h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 7_Merging_001.tif,DAPI,SNAI1,TBX6,120
+50,IF1_rescan_WT_120h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 9_Merging_001.tif__Results.csv,IF1_rescan_WT_120h_Snai1_Rab_ECAD_TBX6_FCS_01Triton_2024_07_ 16.lif - Region 9_Merging_001.tif,DAPI,SNAI1,TBX6,120

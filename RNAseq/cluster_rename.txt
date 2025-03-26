@@ -1,0 +1,16 @@
+old	new	Gene
+a	a	Pou3f1
+b	g	Hes7
+c	k	Foxc1
+d	e	T
+e	f	Cdh2
+f	j	Snai1
+g	o	NA
+h	m	NA
+i	d	Fgf15
+j	h	Wnt3
+k	b	Cdh1
+l	i	Mixl1
+m	c	Nodal
+n	n	Hes3
+o	l	NA

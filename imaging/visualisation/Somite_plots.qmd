@@ -1,0 +1,106 @@
+---
+title: "All plots around manual somite measurement"
+format: html
+editor: source
+---
+
+# Prepare everything
+
+Load packages
+
+```{r}
+library(usefulLDfunctions)
+safelyLoadAPackageInCRANorBioconductor("ggplot2")
+safelyLoadAPackageInCRANorBioconductor("ggh4x")
+```
+
+Define variables
+
+```{r}
+# Path with all csv
+count_file <- "somite.count.csv"
+size_file <- "somite.size.csv"
+
+path_for_plots <- file.path("..", "..", "output.files", "imaging", "visualisation")
+my.theme <- theme_classic() +
+    theme(
+      panel.background = element_blank(),
+      plot.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank()
+        )
+```
+
+
+Create output directory
+
+```{r}
+if (! dir.exists(path_for_plots)) {
+  dir.create(path_for_plots, recursive = TRUE)
+}
+```
+
+# Somite number
+
+Get all data in a data frame
+
+```{r}
+working_df <- read.csv(count_file, check.names = FALSE)
+working_df$Genotype <- "italic('Cdh2'^{'-/-'})"
+working_df$Genotype[working_df$Condition == "120h - TLS"] <- "'WT'"
+working_df$Genotype <- factor(working_df$Genotype, levels = unique(working_df$Genotype))
+```
+
+Plot
+
+```{r}
+g <- ggplot(working_df, aes(x = Condition, y = `Somite Number`)) +
+    geom_boxplot(outliers = FALSE, fill = "grey") +
+    geom_dotplot(binaxis = "y", stackdir = "center", fill = "red", color = NA, dotsize = 0.5) +
+    xlab("") +
+    facet_grid2(
+        . ~ Genotype,
+        scales = "free_x", space = "free_x",
+        labeller = label_parsed,
+        strip = strip_themed(text_x = elem_list_text(color = c("red", "black")))
+    ) +
+    my.theme
+ggsave(file.path(path_for_plots, "somite.numbers.pdf"), g, width = 2.2, height = 3)
+```
+
+# Somite size
+
+Get all data in a data frame
+
+```{r}
+working_df <- read.csv(size_file, check.names = FALSE)
+working_df$Genotype <- "italic('Cdh2'^{'-/-'})"
+working_df$Genotype[working_df$Condition == "120h - TLS"] <- "'WT - TLS'"
+working_df$Genotype <- factor(working_df$Genotype, levels = unique(working_df$Genotype))
+working_df$Stage <- paste0("'", sapply(strsplit(working_df$Condition, " "), head, n = 1), "'")
+```
+
+Plot
+
+```{r}
+addHashTag <- function(s) {paste0("#", s)}
+g <- ggplot(working_df, aes(x = as.factor(`somit number`), y = size)) +
+    geom_boxplot(outliers = FALSE, fill = "grey") +
+    geom_dotplot(binaxis = "y", stackdir = "center", fill = "red", color = NA, dotsize = 0.5) +
+    xlab("Somite position") +
+    ylab(expression("Somite size (" * mu * "m)")) +
+    facet_nested(
+        . ~ Genotype + Stage,
+        scales = "free_x", space = "free_x",
+        labeller = label_parsed
+    ) +
+    scale_x_discrete(label = addHashTag) +
+    my.theme +
+    theme(
+        ggh4x.facet.nestline = element_line(colour = "black"), # Add a hline below Cdh2-/-
+        panel.spacing = unit(2, "lines"), # Increase space between panels
+        axis.text.x = element_text(size = 6) # Decrease the font size of #1...
+    )
+ggsave(file.path(path_for_plots, "somite.sizes.pdf"), g, width = 7, height = 3)
+```

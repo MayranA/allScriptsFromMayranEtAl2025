@@ -32,7 +32,7 @@ Combination of individual counts / FPKM have been computing using the R scripts 
 
 ## Launch DESeq2
 
-Differential gene expression was computed with DESeq2. The R script is available [here](./DESeq2.R) and the results are [here](./DESeq2_pairwise/).
+All differential gene expression analysis was computed with DESeq2. For mutants, the R script is available [here](./DESeq2_mutant.R) and the results are [here](./../output.files/RNAseq/DESeq2_pairwise/). For time-course, the R script is available [here](./DESeq2_time-course.R) and the results are [here](./../output.files/RNAseq/DESeq2_pairwise_time-course/).
 
 ## Average of replicates' coverage
 

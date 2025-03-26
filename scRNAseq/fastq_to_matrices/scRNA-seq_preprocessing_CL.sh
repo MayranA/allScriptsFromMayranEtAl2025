@@ -12,6 +12,9 @@ CITE-seq-Count --threads ${GALAXY_SLOTS:-4} --read1 'input_R1.fastqsanger.gz' --
  gunzip Results/umi_count/features.tsv.gz 
  gunzip Results/umi_count/matrix.mtx.gz
 
+# The barcodes for cells have been translated using awk:
+awk '{split($1,a,""); a[8]=a[8]=="A"?"T":a[8]=="T"?"A":a[8]=="C"?"G":"C"; a[9]=a[9]=="A"?"T":a[9]=="T"?"A":a[9]=="C"?"G":"C"; print a[1]a[2]a[3]a[4]a[5]a[6]a[7]a[8]a[9]a[10]a[11]a[12]a[13]a[14]a[15]a[16]}' barcodes.tsv > barcodes_translated.tsv
+
 # For Gene expression:
 
 # toolshed.g2.bx.psu.edu/repos/iuc/rna_starsolo/rna_starsolo/2.7.10b+galaxy3

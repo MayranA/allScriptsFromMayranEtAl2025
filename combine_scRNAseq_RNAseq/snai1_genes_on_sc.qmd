@@ -2,12 +2,12 @@
 title: "Module score"
 author: "Alexandre Mayran"
 format: html
-editor: visual
+editor: source
 ---
 
 ```{r, setup, include=FALSE}
 # choose working directory
-wd <- "/data/home/ldelisle/tempAllScriptsFromMayranEtAl2023"
+wd <- "/data/home/ldelisle/allScriptsFromMayranEtAl2025"
 knitr::opts_knit$set(root.dir = wd)
 ```
 
@@ -84,47 +84,6 @@ filteredSimplifiedTable.subset.byScExpr$`Clone2Cut` <- cut(filteredSimplifiedTab
 rownames(filteredSimplifiedTable.subset.byScExpr) <- filteredSimplifiedTable.subset.byScExpr$gene
 my.FC.color <- rev(RColorBrewer::brewer.pal(n = 9, name = "RdBu"))
 names(my.FC.color) <- levels(filteredSimplifiedTable.subset.byScExpr$Clone1Cut)
-```
-
-## Plot Heatmap
-
-```{r}
-params$current.fig <- SwitchFigure(Fig = "S8", Panel = "Pheatmap.genes.from.Bulk.Snai1KO.in.WT.singleCell")
-
-pheatmap::pheatmap(expr.table, color = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 10, name = "RdBu")))(100),
-                   show_colnames = F, cluster_cols = F, show_rownames = F,
-                   # breaks = c(min(-2.01, min(expr.table)),
-                   #            seq(-2, 2, length.out = 98),
-                   #            max(2.01, max(expr.table))),
-                   breaks = seq(-2, 2, length.out = 100),
-                   annotation_col = subset(combined.seurat.for.heatmap[[]], select = c("Fate", "Time")),
-                   annotation_row = filteredSimplifiedTable.subset.byScExpr[, grep("Cut",
-                                                                              colnames(filteredSimplifiedTable.subset.byScExpr))],
-                   annotation_colors = list("Fate" = my.fate.colors,
-                                            "Clone2Cut" = rev(my.FC.color),
-                                            "Clone1Cut" = rev(my.FC.color),
-                                            "Time" = my.time.colors),
-                   annotation_legend = T, clustering_method = "ward.D", cutree_rows = 3,
-                   filename = paste0(params$current.fig,"/",nameRDS,".Heatmap.SnaiKO.subset.diff.exp.per.Fate.pdf"
-
-                   ), width = 8, height = 12
-)
-pheatmap::pheatmap(expr.table, color = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 10, name = "RdBu")))(100),
-                   show_colnames = F, cluster_cols = F, show_rownames = F,
-                   # breaks = c(min(-2.01, min(expr.table)),
-                   #            seq(-2, 2, length.out = 98),
-                   #            max(2.01, max(expr.table))),
-                   breaks = seq(-2, 2, length.out = 100),
-                   annotation_col = subset(combined.seurat.for.heatmap[[]], select = c("Fate", "Time")),
-                   annotation_row = filteredSimplifiedTable.subset.byScExpr[, grep("Cut",
-                                                                              colnames(filteredSimplifiedTable.subset.byScExpr))],
-                   annotation_colors = list("Fate" = my.fate.colors,
-                                            "Clone2Cut" = rev(my.FC.color),
-                                            "Clone1Cut" = rev(my.FC.color),
-                                            "Time" = my.time.colors),
-                   annotation_legend = T, clustering_method = "ward.D", cutree_rows = 3,
-                   width = 8, height = 12
-)
 ```
 
 # Assign score to each cell

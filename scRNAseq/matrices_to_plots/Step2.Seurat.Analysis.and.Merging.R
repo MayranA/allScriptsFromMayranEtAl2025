@@ -12,7 +12,7 @@ safelyLoadAPackageInCRANorBioconductor("ggplot2")
 safelyLoadAPackageInCRANorBioconductor("digest")
 
 # introduce variable that will be used
-wd <- "/data/home/ldelisle/tempAllScriptsFromMayranEtAl2023"
+wd <- "/data/home/ldelisle/allScriptsFromMayranEtAl2025"
 # all files are relative to wd
 # rds files will be put in a RDS folder
 # rds are only created once, if pipeline changes, delete manually all rds

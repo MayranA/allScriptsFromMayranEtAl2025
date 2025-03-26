@@ -1,13 +1,13 @@
 ---
 title: "Single cell RNAseq analysis of WT gastruloids (72h)"
 format: html
-editor: visual
+editor: source
 author : Alexandre Mayran
 ---
 
 ```{r, setup, include=FALSE}
 # choose working directory
-wd <- "/data/home/ldelisle/tempAllScriptsFromMayranEtAl2023"
+wd <- "/data/home/ldelisle/allScriptsFromMayranEtAl2025"
 knitr::opts_knit$set(root.dir = wd)
 ```
 
@@ -22,7 +22,6 @@ scRNAseqParam.file.path <- "scRNAseq/matrices_to_plots/scRNAseqWTparams.R"
 source(scRNAseqFunctions.file.path)
 source(scRNAseqParam.file.path)
 ```
-
 
 ## We define the parameters for display
 
@@ -50,6 +49,7 @@ if (file.exists(file.path(RDSfolder, "analyzed", nameRDS.subset))){
   stop(paste0(nameRDS," RDS file not found, check the location"))
 }
 ```
+
 ## If the analyzed RDS does not exists load the big RDS and subset
 
 ### Load big RDS
@@ -179,7 +179,7 @@ for(gene in genelist){
 
 params$current.fig <- SwitchFigure(Fig = "S3", Panel = "FeaturePlot.72h.WT")
 
-genelist <- c("Frzb", "Snai1", "Fst", "Pou5f1")
+genelist <- "Snai1"
 for(gene in genelist){
   g <- featurePlotMayran("subset.seurat", gene, params)
   print(g)
@@ -323,25 +323,4 @@ for(gene in gene.list.intersected){
              width = 8, height = 4)
 }
 
-params$current.fig <- SwitchFigure(Fig = "S3", Panel = "Gene.Velocity.72h")
-gene.list <- c("Pou5f1", "Fst")
-
-gene.list.intersected <- intersect(gene.list, rownames(velocity.on.embedding[["vel"]]))
-
-if (length(gene.list) != length(gene.list.intersected)) {
-  print(paste("the following genes do not have velocity:", paste(setdiff(gene.list, rownames(velocity.on.embedding[["vel"]])), collapse = ", ")))
-}
-
-for(gene in gene.list.intersected){
-  g <- ggplot(as.data.frame(Embeddings(object = subset.seurat,reduction = "umap")), aes(x = UMAP_1, y = UMAP_2)) + 
-    geom_point(aes(colour = velocity.on.embedding[["vel"]][gene,])) +
-    scale_colour_gradientn(paste(gene, "velocity"),
-                           colors = RColorBrewer::brewer.pal(n = 11, name = "RdBu")) +
-    theme_minimal(base_line_size = 0.1) +
-    NoAxes()
-  print(g)
-  savePngPdf(g, params$current.fig,
-             paste0(gene, ".specific.Velocity",nameRDS,".72h"),
-             width = 8, height = 4)
-}
 ```

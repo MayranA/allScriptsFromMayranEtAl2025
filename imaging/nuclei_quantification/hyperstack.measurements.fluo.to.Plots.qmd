@@ -1,0 +1,399 @@
+---
+title: "IF.nuclei.measurements.to.graphs"
+format: html
+editor: source
+---
+
+```{r, setup, include=FALSE}
+# choose working directory
+wd <- file.path(Sys.getenv("HOME"), "allScriptsFromMayranEtAl2025")
+knitr::opts_knit$set(root.dir = wd)
+```
+
+
+```{r}
+library(usefulLDfunctions)
+safelyLoadAPackageInCRANorBioconductor("ggplot2")
+safelyLoadAPackageInCRANorBioconductor("ggpubr")
+safelyLoadAPackageInCRANorBioconductor("dplyr")
+safelyLoadAPackageInCRANorBioconductor("ggrastr")
+path <- wd
+# Path with all csv
+csvPath <- "output.files/imaging/nuclei_quantification/groovy_outputs"
+pattern <- "*.csv"
+path_for_plots <- file.path(path, "output.files", "imaging", "nuclei_quantification")
+# metadata <- "metadata.csv"
+metadata <- file.path(path, "imaging", "nuclei_quantification", "metadata.40x.csv")
+my.theme <- theme_minimal()
+
+diagnostic_mode <- FALSE
+```
+
+Create output directory
+
+```{r}
+if (! dir.exists(path_for_plots)) {
+  dir.create(path_for_plots, recursive = TRUE)
+}
+```
+
+# Load data and merge into one table
+
+```{r}
+# key_values or metadata
+df_kv <- read.csv(metadata, check.names = F)
+# combine all results into a single dataframe
+df_res_fluo <- do.call(
+  rbind,
+  lapply(
+    list.files(file.path(path, csvPath), pattern = pattern, full.names = TRUE, recursive = TRUE),
+    read.csv,
+    header = TRUE, sep = ",", check.names = F
+  )
+)
+df_res_fluo$Section <- as.numeric(sapply(strsplit(as.character(df_res_fluo$ROI), "_"), tail, 1))
+colnames(df_res_fluo)[1] <- "id"
+dim(df_res_fluo)
+# [1] 1214647      21
+
+# merge the results of phase with the key values
+df_results <- merge(df_res_fluo, df_kv, by = "BaseImage", all.x = T)
+
+# Remove dataframes which are not needed anymore
+rm(df_res_fluo, df_kv)
+```
+
+Here we identify the sections with a drop in DAPI signal to get the outside of the gastruloids.
+
+```{r}
+# Get the Avg_Mean_channel1 in neighbouring slides (just before and just after)
+summary_dapi <- df_results %>%
+  group_by(BaseImage, Section, Stage) %>%
+  summarize(
+    Avg_Mean_channel1 = mean(Mean_channel1),
+    Med_Mean_channel1 = median(Mean_channel1)
+  ) %>%
+  group_by(BaseImage) %>%
+  mutate(
+    nSections = max(Section) - min(Section),
+    inFirstHalf = Section <= min(Section) + nSections / 2
+  ) %>%
+  ungroup()
+
+summary_dapi_before <- summary_dapi %>%
+  rename(
+    SectionBefore = Section,
+    Avg_Mean_channel1_Before = Avg_Mean_channel1,
+    Med_Mean_channel1_Before = Med_Mean_channel1
+  ) %>%
+  mutate(Section = SectionBefore + 1)
+
+summary_dapi_after <- summary_dapi %>%
+  rename(
+    SectionAfter = Section,
+    Avg_Mean_channel1_After = Avg_Mean_channel1,
+    Med_Mean_channel1_After = Med_Mean_channel1
+  ) %>%
+  mutate(Section = SectionAfter - 1)
+
+summary_dapi <- merge(
+  merge(summary_dapi, summary_dapi_after, all.x = TRUE),
+  summary_dapi_before, all.x = TRUE
+)
+
+# Compute the ratio between the average and the max between before and after
+summary_dapi <- summary_dapi %>%
+  group_by(BaseImage, Section) %>%
+  mutate(
+    Avg_Mean_channel1_neighbour = max(Avg_Mean_channel1_Before, Avg_Mean_channel1_After, na.rm = TRUE),
+    Avg_Mean_channel1_fc = Avg_Mean_channel1 / Avg_Mean_channel1_neighbour,
+    Med_Mean_channel1_neighbour = max(Med_Mean_channel1_Before, Med_Mean_channel1_After, na.rm = TRUE),
+    Med_Mean_channel1_fc = Med_Mean_channel1 / Med_Mean_channel1_neighbour
+  )
+```
+
+Define a threshold for `Avg_Mean_channel1_fc`
+
+```{r}
+threshold.value <- 0.85
+```
+
+Plot the values
+
+```{r}
+# Plot the values
+if (diagnostic_mode) {
+  for (my.stage in unique(summary_dapi$Stage)) {
+    g <- ggplot(subset(summary_dapi, Stage == my.stage), aes(x = Section, y = Avg_Mean_channel1, color = "Average")) +
+      geom_point() +
+      geom_line() +
+      geom_point(aes(y = Med_Mean_channel1, color = "Median")) +
+      geom_line(aes(y = Med_Mean_channel1, color = "Median")) +
+      facet_wrap(~BaseImage, scales = "free") +
+      my.theme +
+      theme(
+        legend.position = "none"
+      )
+    print(g)
+    g <- ggplot(subset(summary_dapi, Stage == my.stage), aes(x = Section, y = Avg_Mean_channel1_fc, color = "Average")) +
+      geom_point() +
+      geom_line() +
+      geom_point(aes(y = Med_Mean_channel1_fc, color = "Median")) +
+      geom_line(aes(y = Med_Mean_channel1_fc, color = "Median")) +
+      geom_hline(yintercept = threshold.value) +
+      facet_wrap(~BaseImage, scales = "free") +
+      my.theme +
+      theme(
+        legend.position = "none"
+      )
+    print(g)
+  }
+}
+
+# Add variable to Filter:
+# The first section is the first after any section in the first half which is below the threshold
+# The last section is the last before any section in the second half which is below the threshold
+summary_dapi <- summary_dapi %>%
+  group_by(BaseImage, Section) %>%
+  mutate(
+    belowThreshold = Avg_Mean_channel1_fc < threshold.value
+  ) %>%
+  group_by(BaseImage) %>%
+  mutate(
+    minSection = max(Section[belowThreshold & inFirstHalf]) + 1,
+    maxSection = min(Section[belowThreshold & !inFirstHalf]) - 1,
+    toRemove = Section < minSection | Section > maxSection
+  )
+
+# Replot
+if (diagnostic_mode) {
+  for (my.stage in unique(summary_dapi$Stage)) {
+    g <- ggplot(subset(summary_dapi, Stage == my.stage), aes(x = Section, y = Avg_Mean_channel1, color = toRemove)) +
+      geom_point() +
+      geom_line(color = "black") +
+      facet_wrap(~BaseImage, scales = "free") +
+      my.theme +
+      theme(
+        legend.position = "none"
+      )
+    print(g)
+    g <- ggplot(subset(summary_dapi, Stage == my.stage), aes(x = Section, y = Avg_Mean_channel1_fc, color = toRemove)) +
+      geom_point() +
+      geom_line(color = "black") +
+      geom_hline(yintercept = threshold.value) +
+      facet_wrap(~BaseImage, scales = "free") +
+      my.theme +
+      theme(
+        legend.position = "none"
+      )
+    print(g)
+  }
+}
+```
+
+Once you are happy with filtering propagate it to df_results
+
+```{r}
+df_results_tmp <- 
+  merge(df_results,
+        summary_dapi %>%
+          dplyr::select(Section, BaseImage, minSection, maxSection, toRemove))
+
+# Actual filtering
+df_results <- df_results_tmp %>%
+  filter(!toRemove)
+```
+
+Compute std devs on channel 2 and 4
+
+```{r}
+df_results$MAX.STDEV <- pmax(df_results$Std_channel2,df_results$Std_channel4)
+df_results$REL.STDEV2 <- df_results$Std_channel2/df_results$Mean_channel2
+df_results$REL.STDEV4 <- df_results$Std_channel4/df_results$Mean_channel4
+df_results$MAX.REL.STDEV <- pmax(df_results$REL.STDEV2,df_results$REL.STDEV4)
+```
+
+Define threshold to avoid doublets
+
+```{r}
+MAX.REL.STDEV.threshold <- 0.4
+```
+
+```{r}
+if (diagnostic_mode) {
+  for (stage.g in unique(df_results$Stage)) {
+    g <- ggplot(subset(df_results, Stage == stage.g), aes(x = as.factor(Section), y = MAX.REL.STDEV)) +
+      geom_violin(scale = "width") +
+      facet_wrap(~BaseImage, scales = "free") +
+      my.theme +
+      geom_hline(aes(yintercept = MAX.REL.STDEV.threshold))
+    print(g)
+    # g <- ggplot(subset(df_results, Stage == stage.g), aes(x = as.factor(Section), y = MAX.STDEV)) +
+    #   geom_violin(scale = "width") +
+    #   facet_wrap(~BaseImage, scales = "free") +
+    #   my.theme +
+    #   geom_hline(aes(yintercept = 0.3))
+    # print(g)
+    
+  }
+}
+```
+
+Get an idea of the loss of signal along slides:
+
+```{r}
+if (diagnostic_mode) {
+  for (stage.g in unique(df_results$Stage)) {
+    g <- ggplot(subset(df_results, Stage == stage.g), aes(x = as.factor(Section), y = Mean_channel1)) +
+      geom_violin(scale = "width") +
+      facet_wrap(~BaseImage, scales = "free") +
+      my.theme +
+      geom_hline(aes(yintercept = 1))
+    print(g)
+    g <- ggplot(subset(df_results, Stage == stage.g), aes(x = as.factor(Section), y = Mean_channel2)) +
+      geom_violin(scale = "width") +
+      facet_wrap(~BaseImage, scales = "free") +
+      my.theme +
+      geom_hline(aes(yintercept = 1))
+    print(g)  
+      g <- ggplot(subset(df_results, Stage == stage.g), aes(x = as.factor(Section), y = Mean_channel4)) +
+      geom_violin(scale = "width") +
+      facet_wrap(~BaseImage, scales = "free") +
+      my.theme +
+      geom_hline(aes(yintercept = 1))
+    print(g)
+  }
+}
+```
+
+Filter cells and add norm values
+
+```{r}
+df_results_filter <- df_results %>%
+  filter(MAX.REL.STDEV < 0.4) %>%
+  group_by(BaseImage) %>%
+  mutate(norm_Mean_channel2 = Mean_channel2/quantile(Mean_channel2, 0.05),
+         norm_Mean_channel4 = Mean_channel4/quantile(Mean_channel4, 0.05),
+         norm_Median_channel2 = Median_channel2/quantile(Median_channel2, 0.05),
+         norm_Median_channel4 = Median_channel4/quantile(Median_channel4, 0.05)) %>%
+  ungroup()
+```
+
+Count the percentages
+
+```{r}
+# Define the thresholds
+threshold2 <- c("SOX2" = 2, "TBX6" = 2.1)
+threshold4 <- c("SOX2" = 3, "TBX6" = 2.5)
+
+# Add a new column to classify points into quadrants
+df_results_filter <- df_results_filter %>%
+  mutate(quadrant = case_when(
+    norm_Mean_channel2 > threshold2[Channel4] & norm_Mean_channel4 > threshold4[Channel4] ~ "Q1",
+    norm_Mean_channel2 <= threshold2[Channel4] & norm_Mean_channel4 > threshold4[Channel4] ~ "Q2",
+    norm_Mean_channel2 <= threshold2[Channel4] & norm_Mean_channel4 <= threshold4[Channel4] ~ "Q3",
+    norm_Mean_channel2 > threshold2[Channel4] & norm_Mean_channel4 <= threshold4[Channel4] ~ "Q4"
+  ))
+
+# Calculate the proportion of points in each quadrant, split by Stage
+proportion_df <- df_results_filter %>%
+  group_by(Channel4, Stage, quadrant) %>%
+  summarise(count = n()) %>%
+  mutate(percentage = count / sum(count) * 100)
+
+# Define label positions for each quadrant
+label_positions <- data.frame(
+  quadrant = c("Q1", "Q2", "Q3", "Q4"),
+  x = c(7, 1, 1, 7),  # Approximate positions based on axis limits
+  y = c(7, 7, 0, 0)
+)
+
+# Merge the label positions with the proportion data
+proportion_df <- merge(proportion_df, label_positions, by = "quadrant")
+```
+
+Plot them
+
+```{r}
+for (my.channel4 in unique(df_results_filter$Channel4)) {
+  # xmax <- max(df_results_filter$norm_Mean_channel2)
+  # ymax <- max(df_results_filter$norm_Mean_channel4)
+  xmax <- 15
+  ymax <- 10
+  plotlistfinal <- list()
+  plotlistintermediate <- list()
+  list.stage <- c(72, 78, 96, 102, 120)
+  for (my.stage in unique(list.stage)) {
+    # Main plot with points, thresholds, and percentages
+    plotlistintermediate[[paste0(my.stage, "_main")]] <- ggplot(subset(df_results_filter, Stage == my.stage & Channel4 == my.channel4),
+                                                                aes(x = norm_Mean_channel2, y = norm_Mean_channel4)) +
+      geom_point(alpha = 0.003) +
+      geom_vline(xintercept = threshold2[my.channel4], linetype = "dashed", color = "red") +
+      geom_hline(yintercept = threshold4[my.channel4], linetype = "dashed", color = "red") +
+      geom_text(data = subset(proportion_df, Stage == my.stage & Channel4 == my.channel4), aes(x = x, y = y, label = paste0(round(percentage, 0), "%")), 
+                color = "black", size = 3, fontface = "bold") +
+      xlim(0, xmax) +
+      ylim(0, ymax) +
+      my.theme
+    
+    
+    
+    no.axis.values.no.label <- theme(
+      axis.title = element_blank(),
+      axis.text = element_blank()
+    )
+    
+    # X-axis density plot
+    plotlistintermediate[[paste0(my.stage, "_x")]] <- ggplot(subset(df_results_filter, Stage == my.stage & Channel4 == my.channel4),
+                                                              aes(x = norm_Mean_channel2)) +
+      geom_density() +
+      geom_vline(xintercept = threshold2[my.channel4], linetype = "dashed", color = "red") +
+      xlim(0, xmax) +
+      my.theme +
+      no.axis.values.no.label +
+      theme(
+        legend.position = "none"
+      )
+    
+    # Y-axis density plot
+    plotlistintermediate[[paste0(my.stage, "_y")]] <- ggplot(subset(df_results_filter, Stage == my.stage & Channel4 == my.channel4),
+                                                              aes(y = norm_Mean_channel4)) +
+      geom_density() +
+      ylim(0, ymax) +
+      geom_hline(yintercept = threshold4[my.channel4], linetype = "dashed", color = "red") +
+      my.theme +
+      no.axis.values.no.label +
+      theme(
+        legend.position = "none"
+      )
+    
+    # build the plots and rasterize(g, layers = "Point", dpi = 250)
+    plotlistintermediate[[paste0(my.stage, "_main.common.xy")]] <- ggplot_gtable(ggplot_build(rasterize(plotlistintermediate[[paste0(my.stage, "_main")]], layers = "Point", dpi = 250)))
+    plotlistintermediate[[paste0(my.stage, "_x.common.x")]] <- ggplot_gtable(ggplot_build(plotlistintermediate[[paste0(my.stage, "_x")]]))
+    plotlistintermediate[[paste0(my.stage, "_y.common.y")]] <- ggplot_gtable(ggplot_build(plotlistintermediate[[paste0(my.stage, "_y")]]))
+    # 
+    # # copy the plot widths
+    # plotlistintermediate[[paste0(my.stage, "_main.common.xy")]]$widths <- plotlistintermediate[[paste0(my.stage, "_x.common.x")]]$widths
+    # # copy the plot heights
+    # plotlistintermediate[[paste0(my.stage, "_main.common.xy")]]$heights <- plotlistintermediate[[paste0(my.stage, "_y.common.y")]]$heights
+    
+    # copy the plot widths
+    plotlistintermediate[[paste0(my.stage, "_x.common.x")]]$widths <- plotlistintermediate[[paste0(my.stage, "_main.common.xy")]]$widths
+    # copy the plot heights
+    plotlistintermediate[[paste0(my.stage, "_y.common.y")]]$heights <- plotlistintermediate[[paste0(my.stage, "_main.common.xy")]]$heights
+    
+    plotlistfinal[[as.character(my.stage)]] <- ggarrange(
+      plotlistintermediate[[paste0(my.stage, "_x.common.x")]], NULL,
+      plotlistintermediate[[paste0(my.stage, "_main.common.xy")]], plotlistintermediate[[paste0(my.stage, "_y.common.y")]], 
+      nrow = 2, ncol = 2, 
+      widths = c(3, 1), heights = c(1, 3)
+    )
+    
+  }
+
+  # Display the combined plot
+  g <- ggarrange(plotlist = plotlistfinal, labels = names(plotlistfinal), nrow = 1)
+  # print(g)
+  ggsave(filename = file.path(path_for_plots, paste0(my.channel4, "_summary_plot.pdf")), g, width = 24, height = 4)
+}
+```

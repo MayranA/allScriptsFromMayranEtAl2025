@@ -1,0 +1,239 @@
+---
+title: "Bulk RNA-seq profile using Snai1 genes"
+author: "Alexandre Mayran"
+format: html
+editor: source
+---
+
+```{r, setup, include=FALSE}
+# choose working directory
+wd <- "/home/ldelisle/Documents/mygit/allScriptsFromMayranEtAl2025"
+knitr::opts_knit$set(root.dir = wd)
+```
+
+# Bulk RNA-seq profile using Snai1 genes
+
+## Parameters
+
+```{r}
+samplesPlan <- "RNAseq/samples.plan.time.course.txt"
+tableWithNormalizedExpression <- "output.files/RNAseq/mergedTables/time_course/AllCufflinks_Simplified.txt.gz"
+samplesPlanSnai1 <- "RNAseq/samples.plan.mutants.txt"
+tableWithNormalizedExpressionSnai1 <- "output.files/RNAseq/mergedTables/mutants/AllCufflinks_Simplified.txt.gz"
+# File with filtered genes
+filtered.table.file <- "output.files/RNAseq/DESeq2_pairwise/filteredSimplified.txt"
+
+output.dir <- "output.files/RNAseq/time-course_Snai1"
+```
+
+## Dependencies
+
+```{r}
+# Install required packages
+if (!"devtools" %in% installed.packages()) {
+    install.packages("devtools", repos = "https://stat.ethz.ch/CRAN/")
+}
+if (!"usefulLDfunctions" %in% installed.packages()) {
+    devtools::install_github("lldelisle/usefulLDfunctions")
+}
+library(usefulLDfunctions)
+safelyLoadAPackageInCRANorBioconductor("reshape2")
+safelyLoadAPackageInCRANorBioconductor("dplyr")
+safelyLoadAPackageInCRANorBioconductor("ggplot2")
+safelyLoadAPackageInCRANorBioconductor("ggpubr")
+```
+
+## Process inputs
+
+```{r}
+## Process samples plans
+samples.plan.df <- read.delim(samplesPlan)
+rownames(samples.plan.df) <- samples.plan.df$sample
+samples.plan.df$Time <- sapply(strsplit(samples.plan.df$sample, "_"), head, n = 1)
+samples.plan.df$Time <- factor(samples.plan.df$Time, levels = paste0(sort(as.numeric(gsub("h", "", unique(samples.plan.df$Time)))), "h"))
+samples.plan.df$Replicate <- sapply(strsplit(samples.plan.df$sample, "_"), tail, n = 1)
+samples.plan.df$`Fate bias` <- 
+    ifelse(samples.plan.df$Replicate == "rep1",
+           "Neuronal",
+           "Mesodermal")
+
+samples.plan.df2 <- read.delim(samplesPlanSnai1)
+rownames(samples.plan.df2) <- samples.plan.df2$sample
+samples.plan.df2$stage_genotype <- sapply(strsplit(samples.plan.df2$sample, "_rep"), head, n = 1)
+samples.plan.df2$genotype <- sapply(strsplit(samples.plan.df2$stage_genotype, "[0-9]h_"), tail, n = 1)
+samples.plan.df2$genotype <- factor(samples.plan.df2$genotype,
+                                   levels = c(
+                                     grep("KO", unique(samples.plan.df2$genotype), invert = TRUE, value = TRUE),
+                                     grep("KO", unique(samples.plan.df2$genotype), value = TRUE)
+                                   )
+)
+samples.plan.df2$gene <- "Snai1"
+samples.plan.df2$gene[grep("Cdh2", samples.plan.df2$genotype)] <- "Cdh2"
+samples.plan.df2$Replicate <- sapply(strsplit(samples.plan.df2$sample, "_"), tail, n = 1)
+
+# to add color to time:
+fixedColors <- list(
+    Time = colorRampPalette(c("yellow", "orange", "red", "darkred"))(length(unique(samples.plan.df$Time))),
+    Batch = c('batch1' = '#AEBBD5', 'batch2' = '#2B467D', 'batch3' = '#BC9B83', 'batch4' = '#5F2C09'),
+    `Fate bias` = c('Neuronal' = '#002060', 'Mesodermal' = '#5F2C09'),
+    pretty.group = c('upregulated' = "red", 'downregulated' = "black"))
+names(fixedColors$Time) <- sort(unique(samples.plan.df$Time))
+
+## Process FPKM files
+expressionDF <- read.delim(tableWithNormalizedExpression)
+colnames(expressionDF) <- gsub("^FPKM_", "", colnames(expressionDF))
+data <- expressionDF[, samples.plan.df$sample]
+sumperline <- apply(data, 1, sum)
+nonZdata <- data[sumperline != 0, ]
+gene_short_names <- expressionDF$gene_short_name[sumperline != 0]
+ldata <- log2(nonZdata + 1)
+
+
+expressionDF2 <- read.delim(tableWithNormalizedExpressionSnai1)
+colnames(expressionDF2) <- gsub("^FPKM_", "", colnames(expressionDF2))
+data2 <- expressionDF2[, samples.plan.df2$sample]
+sumperline2 <- apply(data2, 1, sum)
+nonZdata2 <- data2[sumperline2 != 0, ]
+gene_short_names2 <- expressionDF2$gene_short_name[sumperline2 != 0]
+ldata2 <- log2(nonZdata2 + 1)
+
+## Process genes
+filteredSimplifiedTable <- read.delim(filtered.table.file, check.names = FALSE)
+
+## Create output.dir
+dir.create(output.dir, showWarnings = FALSE, recursive = TRUE)
+```
+
+## Here we display the expression of genes up or down regulated in Snai1 mutant on our time resolved transcriptomic Atlas
+
+Use a normalization by the max value
+
+```{r, max_norm}
+mat <- ldata[match(filteredSimplifiedTable$gene, gene_short_names), ]
+rownames(mat) <- filteredSimplifiedTable$gene
+sub.df.max <- apply(mat, 1, max)
+filteredSimplifiedTable$max.value <- sub.df.max
+sub.df.norm <- mat / sub.df.max
+df.gg <- melt(as.matrix(sub.df.norm))
+df.gg <- merge(df.gg, samples.plan.df[, c("sample", "Time", "Fate bias", "Replicate")],
+    by.x = "Var2", by.y = "sample"
+)
+df.gg$exp.time <- as.numeric(gsub("h$", "", df.gg$Time))
+df.gg$sign <- sign(filteredSimplifiedTable[match(df.gg$Var1, filteredSimplifiedTable$gene), "AverageSnai1log2FC"])
+```
+
+Then, plot profiles
+
+```{r, profile}
+print(unique(df.gg$Var1[is.na(df.gg$value)]))
+# Ackr4 is not expressed
+df.gg.summary <- df.gg %>%
+    group_by(sign, exp.time) %>%
+    summarize(averageScaledExpression = mean(value, na.rm = TRUE))
+
+df.gg.summary$pretty.group <- ifelse(
+    df.gg.summary$sign == "-1",
+    "downregulated",
+    "upregulated"
+)
+
+df.gg.summary.per.rep <- df.gg %>%
+    group_by(sign, exp.time, Replicate) %>%
+    summarize(averageScaledExpression = mean(value, na.rm = TRUE))
+
+df.gg.summary.per.rep$pretty.group <- ifelse(
+    df.gg.summary.per.rep$sign == "-1",
+    "downregulated",
+    "upregulated"
+)
+
+
+g <- ggplot(df.gg.summary,
+    aes(x = exp.time, y = averageScaledExpression,
+        color = pretty.group, fill = pretty.group)) +
+    geom_smooth() +
+    # geom_point() +
+    # geom_point(data = df.gg.summary.per.rep) +
+  scale_color_manual("", values = fixedColors[["pretty.group"]]) +
+  scale_fill_manual("", values = fixedColors[["pretty.group"]]) +
+  theme_classic() +
+  ylab("Average of normalized expression") +
+  scale_x_continuous("Stage (h)", seq(48, 96, 6), seq(48, 96, 6),
+                     expand = c(0, 0), sec.axis = dup_axis()) + 
+  guides(colour = guide_legend(ncol = 1),
+         fill = guide_legend(ncol = 1)) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.ticks.length.x = unit(-0.25, "cm"),
+        axis.text.x.top = element_blank(),
+        axis.title.x.top = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),
+        legend.position = c(0.75, 0.1),
+        legend.background = element_rect(fill='transparent'))
+
+```
+
+## Get normalized expression in Snai1 mutant and controls
+
+```{r}
+mat2 <- ldata2[match(filteredSimplifiedTable$gene, gene_short_names2), ]
+rownames(mat2) <- filteredSimplifiedTable$gene
+sub.df.norm2 <- mat2 / sub.df.max
+df.gg2 <- melt(as.matrix(sub.df.norm2))
+df.gg2 <- merge(df.gg2, samples.plan.df2[, c("sample", "genotype", "gene", "Replicate")],
+    by.x = "Var2", by.y = "sample"
+)
+df.gg2$sign <- sign(filteredSimplifiedTable[match(df.gg2$Var1, filteredSimplifiedTable$gene), "AverageSnai1log2FC"])
+```
+
+```{r}
+print(unique(df.gg2$Var1[is.na(df.gg2$value)]))
+# Tagln Ackr4 are not expressed
+df.gg.summary2 <- df.gg2 %>%
+    group_by(sign, genotype, Replicate) %>%
+    summarize(averageScaledExpression = mean(value, na.rm = TRUE))
+
+df.gg.summary2$pretty.group <- ifelse(
+    df.gg.summary2$sign == "-1",
+    "downregulated",
+    "upregulated"
+)
+
+# Add the time-course values
+time.course.data <- subset(df.gg, exp.time == 96) %>%
+    group_by(sign, Replicate) %>%
+    summarize(averageScaledExpression = mean(value, na.rm = TRUE))
+time.course.data$genotype <- "WT_timecourse"
+time.course.data$pretty.group <- ifelse(
+    time.course.data$sign == "-1",
+    "downregulated",
+    "upregulated"
+)
+
+df.gg.summary2 <- rbind(df.gg.summary2, time.course.data[, colnames(df.gg.summary2)])
+df.gg.summary2$genotype <- factor(df.gg.summary2$genotype, levels = c("WT_timecourse", "WT", "Snai1KO_Clone1", "Snai1KO_Clone2", "Cdh2Het", "Cdh2KO_Clone1", "Cdh2KO_Clone2"))
+
+g2 <- ggplot(
+    subset(df.gg.summary2, grepl("Snai1KO", genotype)),
+    aes(x = genotype, y = averageScaledExpression, color = pretty.group)
+) +
+    geom_point() +
+    scale_color_manual("", values = fixedColors[["pretty.group"]]) +
+  theme_classic() +
+  ylab("Average of normalized expression")
+
+g.build <- ggplot_gtable(ggplot_build(g + ylim(-.01, 1)))
+g2.build <- ggplot_gtable(ggplot_build(g2 + ylim(-.01, 1) +
+theme(axis.title.y= element_blank(), axis.text.y=element_blank(), legend.position = "none", axis.ticks.length.x = unit(-0.25, "cm"))))
+g2.build$heigths <- g.build$heights
+ggarrange(g.build, g2.build, widths = c(3, 0.5))
+
+ggsave(file.path(output.dir, paste0("genes_Snai1_nmax_summary_selected_smooth_and_Snai1_mutant_only.pdf")),
+       width = 9, height = 5)
+```
+
+Write sessionInfo to file:
+
+```{r}
+writeLines(capture.output(sessionInfo()), "RNAseq/sessionInfo_time-course_Snai1.txt")
+```
