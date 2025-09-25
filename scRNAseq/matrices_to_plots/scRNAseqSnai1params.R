@@ -15,9 +15,9 @@ names(my.time.colors) <- c("0h", "48h", "72h", "96h", "120h", "144h", "168h")
 
 list.Fate.level <- list("Pluripotent" = c("Epiblast","Pluripotent"),
                         "PrimStreak" = c("Prim. Streak", "Ant. Prim. Streak",  "Caudal Epiblast"),
-                        "Neuronal" = c("Early NMP","Late NMP","Neural Tube 1","Neural Tube 2","Neuron Progen.","Neuron Precursor"),
-                        "Somitic" = c("Mixed Mesoderm", "Post. PSM", "Ant. PSM", "Som. Mes.", "Sclerotome"),
-                        "Endoderm" = c("Early Endoderm", "Late Endoderm"),
+                        "Neuronal" = c("NMP 1","NMP 2","Neural Tube 1","Neural Tube 2","Neuron Progen.","Neuron Precursor"),
+                        "Somitic" = c("Pharyngeal Mesoderm", "Post. PSM", "Ant. PSM", "Som. Mes.", "Sclerotome"),
+                        "Endoderm" = c("Endoderm 1", "Endoderm 2"),
                         "Endothelium" = c("Endothelial", "Surface Ectoderm"))
 
 list.color  <- list("Pluripotent" = c('#000000' , '#BFBFBF'),

@@ -107,7 +107,7 @@ print(stats)
 x.labels <- gsub("hpa", "h", unique(proportions.df$Condition))
 names(x.labels) <- unique(proportions.df$Condition)
 n.tots <- summarize(proportions.df, ntot = sum(n))
-x.labels <- paste(x.labels, "<br><span style = 'font-size:12pt'>N = ", n.tots$ntot[match(names(x.labels), n.tots$Condition)], "</span>")
+x.labels <- paste0(x.labels, "<br><span style = 'font-size:20pt'>n=", n.tots$ntot[match(names(x.labels), n.tots$Condition)], "</span>")
 names(x.labels) <- unique(proportions.df$Condition)
 # For reproducible jitter:
 set.seed(28)
@@ -126,34 +126,39 @@ ggplot(proportions.df, aes(x = Condition, y = proportion)) +
     stat_pvalue_manual(
         stats %>%
             filter(p.signif != "ns") %>%
-            mutate(y.position = 1.03 + 1:length(group1) * 0.05),
-        label = "p.signif",
+            mutate(y.position = 1.03 + 1:length(group1) * 0.08),
+        label = "p={signif(p, 2)}",
         tip.length = 0.01
     ) +
     theme_classic() +
     theme(
-        axis.line.y = element_blank(),
-        text = element_text(size = 20),
+        # axis.line.y = element_blank(),
+        text = element_text(size = 28),
         axis.text.x = element_markdown(),
         legend.position = c(0.87, .6),
-        legend.margin = margin(0.1, 0.1, 0.1, 0.1, "cm")
+        legend.margin = margin(0.1, 0.1, 0.1, 0.1, "cm"),
+        legend.text = element_text(size = 16),
+        legend.background = element_rect(fill = NA,
+                                         linetype = 2,
+                                         color = "black"),
+        legend.title = element_blank()
     ) +
     scale_y_continuous(
-        expand = expansion(mult = c(0, .02)),
+        expand = expansion(mult = c(0, .04)),
         labels = scales::percent,
         breaks = seq(0, 1, 0.25)
     ) +
     scale_shape_manual("",
         values = 4:14
     ) +
-    ylab("Proportion of Elongated gastruloids") +
+    ylab("% elongated gastruloids") +
     scale_x_discrete(labels = x.labels) +
     xlab("")
 # For reproducible jitter:
 set.seed(28)
-ggsave(file.path(output.dir, "prop.elong.png"), width = 5, height = 7)
+ggsave(file.path(output.dir, "prop.elong.png"), width = 5, height = 5)
 set.seed(28)
-ggsave(file.path(output.dir, "prop.elong.pdf"), width = 5, height = 7)
+ggsave(file.path(output.dir, "prop.elong.pdf"), width = 5, height = 5)
 ```
 
 Write sessionInfo to file:

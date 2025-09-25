@@ -14,9 +14,9 @@ names(my.time.colors) <- c("0h", "48h", "72h", "96h", "120h", "144h", "168h")
 # Order matter! It will be used in all plots!
 list.Fate.level <- list("Pluripotent" = c("ESCs", "Epiblast", "Pluripotent" ),
                         "PrimStreak" = c("Prim. Streak", "Ant. Prim. Streak", "Caudal Mes."),
-                        "Neuronal" = c("Early NMP","Late NMP", "Neural Tube", "Neuron Progen. 1", "Neuron Progen. 2","Neuron Precursor"),
-                        "Mesoderm" = c("Post. PSM", "Mixed Mes.", "Ant. PSM", "Som. Mes.", "Dermomyotome", "Sclerotome"),
-                        "Endoderm" = c("Early Endoderm", "Late Endoderm"),
+                        "Neuronal" = c("NMP 1","NMP 2", "Neural Tube", "Neuron Progen. 1", "Neuron Progen. 2","Neuron Precursor"),
+                        "Mesoderm" = c("Post. PSM", "Pharyngeal Mes.", "Ant. PSM", "Som. Mes.", "Dermomyotome", "Sclerotome"),
+                        "Endoderm" = c("Endoderm 1", "Endoderm 2"),
                         "Other" = c("Endothelial", "Surface Ecto.", "Unknown"))
 # list.color is a list with the same categories and colors that describe the heatmap. There must be at least 2 colors:
 list.color  <- list("Pluripotent" = c('#000000' , '#BFBFBF'),

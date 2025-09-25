@@ -7,7 +7,7 @@ author : Alexandre Mayran
 
 ```{r, setup, include=FALSE}
 # choose working directory
-wd <- "/data/home/ldelisle/allScriptsFromMayranEtAl2025"
+wd <- "~/script/allScriptsFromMayranEtAl2025/"
 knitr::opts_knit$set(root.dir = wd)
 ```
 
@@ -27,7 +27,7 @@ source(scRNAseqParam.file.path)
 
 ```{r}
 # Here you need to define the name of the folder where the RDS is
-RDSfolder <- "../mountDuboule/Alex/R/RDS_new"
+RDSfolder <- "~/R/RDS_new/"
 # This output.directory will be used for plots
 output.directory <- "output.files/scRNAseq/matrices_to_plots/WT/"
 # Here put name of RDS as given in step 2
@@ -86,11 +86,15 @@ To use this code on another dataset, please update new.cluster.name accordingly 
 ```{r}
 # choose the name you want for your cluster, order should match the 0 to n number that seurat gives.
 Idents(combined.seurat) <- "seurat_clusters"
-new.cluster.name <- c("Neural Tube","Som. Mes.","Post. PSM","Early NMP","Caudal Mes.",
-                      "Prim. Streak","Dermomyotome","Neuron Progen. 1","Epiblast",
-                      "Late NMP","Neuron Progen. 2","Sclerotome", "Ant. PSM", "ESCs",
-                      "Late Endoderm", "Neuron Precursor", "Mixed Mes.", "Ant. Prim. Streak",
-                      "Early Endoderm", "Pluripotent", "Unknown", "Endothelial", "Surface Ecto.")
+new.cluster.name <- c("Neural Tube", "Som. Mes.", "Post. PSM",
+                      "NMP 1", "Caudal Mes.", "Prim. Streak",
+                      "Dermomyotome", "Neuron Progen. 1", "Epiblast",
+                      "NMP 2", "Neuron Progen. 2", "Sclerotome",
+                      "Ant. PSM", "ESCs", "Endoderm 2",
+                      "Neuron Precursor", "Pharyngeal Mes.",
+                      "Ant. Prim. Streak", "Endoderm 1",
+                      "Pluripotent", "Unknown",
+                      "Endothelial", "Surface Ecto.")
 names(new.cluster.name) <- levels(combined.seurat$seurat_clusters)
 combined.seurat <- RenameIdents(combined.seurat, new.cluster.name)
 # Put the new cluster name in the metadata 'Fate'
@@ -245,12 +249,33 @@ for(gene in genelist){
   g <- featurePlotMayran("combined.seurat", gene, params)
   print(g)
 }
-params$current.fig <- SwitchFigure(Fig = "S6", Panel = "Snai1.WT")
+params$current.fig <- SwitchFigure(Fig = "S1", Panel = "Reviewer")
+genelist <- c("Lmo1", "Kdr", "Tbx6", "Msgn1", "Mesp1",
+              "Nkx2-5", "Hand2", "Gata6", "Pax2", "Osr1", "Lhx1",
+              "Chrd", "Noto", "Nodal", "Bmp4", "Tbx1", "Hand1", "Foxf1",
+              "T", "Sox2")
+for(gene in genelist){
+  g <- featurePlotMayran("combined.seurat", gene, params)
+  print(g)
+}
+params$current.fig <- SwitchFigure(Fig = "S4", Panel = "Snai1.WT")
 genelist <- c("Snai1")
 for(gene in genelist){
   g <- featurePlotMayran("combined.seurat", gene, params)
   print(g)
 }
+```
+
+Here we identify the markers between the Prim. Streak and Ant. Prim. Streak fates
+
+```{r}
+marker.APS.vs.PS <- FindMarkers(combined.seurat,
+                                ident.1 = "Prim. Streak", 
+                                ident.2 = "Ant. Prim. Streak",
+                                logfc.threshold = 0.3,
+                                min.diff.pct = 0.2
+                                )
+write.csv(marker.APS.vs.PS, file = file.path(output.directory, "markers.APS.vs.PS.csv"))
 ```
 
 Write sessionInfo to file:

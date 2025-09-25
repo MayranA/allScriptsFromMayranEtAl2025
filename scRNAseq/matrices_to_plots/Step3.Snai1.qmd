@@ -7,7 +7,7 @@ author : Alexandre Mayran
 
 ```{r, setup, include=FALSE}
 # choose working directory
-wd <- "/data/home/ldelisle/allScriptsFromMayranEtAl2025"
+wd <- "~/script/allScriptsFromMayranEtAl2025/"
 
 knitr::opts_knit$set(root.dir = wd)
 ```
@@ -29,7 +29,7 @@ source(scRNAseqParam.file.path)
 ```{r}
 # Here you need to define the name of the folder where the RDS is.
 # The RDS folder needs to be placed right outside of the working directory
-RDSfolder <- "../mountDuboule/Alex/R/RDS_new"
+RDSfolder <- "~/R/RDS_new/"
 output.directory <- "output.files/scRNAseq/matrices_to_plots/Snai1/"
 nameRDS <- "combined.Snai1_5c4e8bb1.RDS"
 if(file.exists(file.path(RDSfolder, "merged", paste0(nameRDS)))){
@@ -83,11 +83,12 @@ To use this code on another dataset, please update new.cluster.name accordingly 
 
 ```{r}
 Idents(combined.seurat) <- "seurat_clusters"
-new.cluster.name <- c("Som. Mes.","Late NMP", "Neural Tube 1", "Prim. Streak", "Early NMP",
-                      "Caudal Epiblast","Mixed Mesoderm", "Post. PSM", "Epiblast",
-                      "Neuron Progen.", "Ant. PSM","Sclerotome", "Late Endoderm",
+new.cluster.name <- c("Som. Mes.","NMP 2", "Neural Tube 1", "Prim. Streak",
+                      "NMP 1", "Caudal Epiblast","Pharyngeal Mesoderm",
+                      "Post. PSM", "Epiblast", "Neuron Progen.",
+                      "Ant. PSM","Sclerotome", "Endoderm 2",
                       "Neural Tube 2", "Pluripotent", "Neuron Precursor",
-                      "Ant. Prim. Streak", "Early Endoderm", "Surface Ectoderm",
+                      "Ant. Prim. Streak", "Endoderm 1", "Surface Ectoderm",
                       "Endothelial")
 names(new.cluster.name) <- levels(combined.seurat)
 combined.seurat <- RenameIdents(combined.seurat, new.cluster.name)
@@ -150,7 +151,7 @@ Display cell proportion per conditions
 
 ```{r}
 #| label: Fig.1c Cluster proportion per time
-params$current.fig <- SwitchFigure(Fig = "S8", Panel = "BarPlot.Snai1")
+params$current.fig <- SwitchFigure(Fig = "S5", Panel = "BarPlot.Snai1")
 Idents(combined.seurat) <- "Fate"
 #Cluster cell proportions
 
@@ -183,32 +184,40 @@ combined.seurat$Genotype2 <- combined.seurat$Genotype
 combined.seurat$Genotype2 <- factor(combined.seurat$Genotype, levels = c(levels(combined.seurat$Genotype), "Other"))
 combined.seurat$Genotype2[colnames(combined.seurat) %in% late.cells] <- "Other"
 # DimPlot(combined.seurat, group.by = "Genotype2")
-params$current.fig <- SwitchFigure(Fig = "S8", Panel = "Transitory.featurePlot")
+params$current.fig <- SwitchFigure(Fig = "S5", Panel = "Transitory.featurePlot")
 genelist <- c("T", "Fst", "Sp8")
 for(gene in genelist){
   g <- featurePlotMayran("combined.seurat", gene, params, split.by = "Genotype2", by.rows = T, width = 6, height = 15)
   print(g)
 }
-params$current.fig <- SwitchFigure(Fig = "S8", Panel = "PSM.featurePlot")
+params$current.fig <- SwitchFigure(Fig = "S5", Panel = "PSM.featurePlot")
 genelist <- c("Tbx6", "Msgn1", "Pcdh19")
 for(gene in genelist){
   g <- featurePlotMayran("combined.seurat", gene, params, split.by = "Genotype2", by.rows = T, width = 6, height = 15)
   print(g)
 }
-params$current.fig <- SwitchFigure(Fig = "S8", Panel = "Pluripotent.featurePlot")
+params$current.fig <- SwitchFigure(Fig = "S5", Panel = "Pluripotent.featurePlot")
 genelist <- c("Dppa5a", "Zfp42", "Pou5f1")
 for(gene in genelist){
   g <- featurePlotMayran("combined.seurat", gene, params, split.by = "Genotype2", by.rows = T, width = 6, height = 15)
   print(g)
 }
-params$current.fig <- SwitchFigure(Fig = "S8", Panel = "Som.Mes.featurePlot")
+params$current.fig <- SwitchFigure(Fig = "S5", Panel = "Som.Mes.featurePlot")
 genelist <- c("Pax3", "Tcf15", "Meox2", "Pax1")
 for(gene in genelist){
   g <- featurePlotMayran("combined.seurat", gene, params, split.by = "Genotype2", by.rows = T, width = 6, height = 15)
   print(g)
 }
-params$current.fig <- SwitchFigure(Fig = "S8", Panel = "Neuronal.featurePlot")
+params$current.fig <- SwitchFigure(Fig = "S5", Panel = "Neuronal.featurePlot")
 genelist <- c("Pax6", "Sox3", "Irx3", "Sox1")
+for(gene in genelist){
+  g <- featurePlotMayran("combined.seurat", gene, params, split.by = "Genotype2", by.rows = T, width = 6, height = 15)
+  print(g)
+}
+
+params$current.fig <- SwitchFigure(Fig = "S5", Panel = "Reviewer")
+genelist <- c("Wnt3", "Wnt3a", "Nodal", "Fgf4", "Fgf8", "Fgf5",
+              "Aldh1a2", "Cyp26a1", "Otx2", "Fgf5")
 for(gene in genelist){
   g <- featurePlotMayran("combined.seurat", gene, params, split.by = "Genotype2", by.rows = T, width = 6, height = 15)
   print(g)
